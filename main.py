@@ -1,16 +1,29 @@
-# This is a sample Python script.
+from src.blockchain_utils.credentials import get_client, get_account_credentials
+import src.services as services
+from src.services.asset_creation import ASAProperties, ASAEconomyConfiguration
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+client = get_client()
 
+acc_pk, acc_address, _ = get_account_credentials(account_id=1)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Creating an ASA i.e utility tokens.
 
+# This configuration should be configurable on UI per client.
+economy_configuration = ASAEconomyConfiguration(max_sell_price=5000000,
+                                                owner_fee=1000000,
+                                                profit_fee=0)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+asa_creation_service = services.AssetCreationService(asa_owner_pk=acc_pk,
+                                                     unit_name='Logona',
+                                                     asset_name='LOG',
+                                                     total_supply=1000,
+                                                     economy_configuration=economy_configuration)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Creating the ASA
+
+asa_creation_service.create_asa(client=client)
+print(f'asa_id: {asa_creation_service.asa_id}')
+
+# This properties should be logged in a database ?
+asa_properties: ASAProperties = asa_creation_service.get_asa_properties()
+print(asa_properties)
