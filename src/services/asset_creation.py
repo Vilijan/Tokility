@@ -3,29 +3,7 @@ from pydantic import BaseModel
 from src.services.network_interaction import NetworkInteraction
 from src.blockchain_utils.transaction_repository import ASATransactionRepository
 from algosdk import account as algo_acc
-
-
-class ASAEconomyConfiguration(BaseModel):
-    """
-    Defines the behavior of the economy for the ASA by the 3rd parties. This configuration should be sent as parameter
-    to the Smart Contracts of the application.
-    """
-
-    max_sell_price: int
-    owner_fee: int
-    profit_fee: int
-
-
-class ASAProperties(BaseModel):
-    """
-    Defines the properties of the created Algorand Standard Asset. This properties should be used in the Smart Contracts
-    """
-    asa_owner_address: str
-    unit_name: str
-    asset_name: str
-    total_supply: int
-    asa_id: int
-    economy_configuration: ASAEconomyConfiguration
+from src.models.asset_configurations import ASAEconomyConfiguration, ASAInitialOfferingConfiguration, ASAProperties
 
 
 class AssetCreationService:
@@ -34,6 +12,7 @@ class AssetCreationService:
                  unit_name: str,
                  asset_name: str,
                  total_supply: int,
+                 initial_offering_configuration: ASAInitialOfferingConfiguration,
                  economy_configuration: ASAEconomyConfiguration):
         self.asa_owner_pk = asa_owner_pk
         self.asa_owner_address = algo_acc.address_from_private_key(private_key=asa_owner_pk)
@@ -42,6 +21,7 @@ class AssetCreationService:
         self.total_supply = total_supply
 
         self.asa_id = None
+        self.initial_offering_configuration = initial_offering_configuration
         self.economy_configuration = economy_configuration
 
     def create_asa(self, client):
@@ -69,4 +49,5 @@ class AssetCreationService:
                              asset_name=self.asset_name,
                              total_supply=self.total_supply,
                              asa_id=self.asa_id,
+                             initial_offering_configuration=self.initial_offering_configuration,
                              economy_configuration=self.economy_configuration)
