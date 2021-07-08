@@ -5,11 +5,9 @@ from typing import Optional
 class ASAInitialOfferingConfiguration(BaseModel):
     """
     Defines the configurations which describes the selling process of the ASA from the owner to the client.
-    - total_supply: int - the total supply of the ASA.
     - asa_price: int - the price of the ASA in ALGOs.
     - max_asa_per_user: int - the maximum number of asa a single address can own.
     """
-    total_supply: int
     asa_price: int
     max_asa_per_user: int
 
@@ -26,7 +24,7 @@ class ASAEconomyConfiguration(BaseModel):
     profit_fee: int
 
 
-class ASAProperties(BaseModel):
+class ASAConfiguration(BaseModel):
     """
     Defines the properties of the created Algorand Standard Asset. This properties should be used in the Smart Contracts
     """
@@ -37,8 +35,3 @@ class ASAProperties(BaseModel):
     asa_id: int
     initial_offering_configuration: ASAInitialOfferingConfiguration
     economy_configuration: ASAEconomyConfiguration
-
-
-
-
-
