@@ -1,6 +1,8 @@
-from algosdk.v2client import algod
-from algosdk.future.transaction import SignedTransaction
+import base64
 from typing import Optional
+
+from algosdk.future.transaction import SignedTransaction
+from algosdk.v2client import algod
 
 
 class NetworkInteraction:
@@ -54,3 +56,22 @@ class NetworkInteraction:
             # TODO: Proper logging needed.
             print(e)
             print('Unsuccessful creation of Algorand Standard Asset.')
+
+    @staticmethod
+    def submit_transaction(client: algod.AlgodClient, transaction: SignedTransaction) -> Optional[str]:
+        txid = client.send_transaction(transaction)
+
+        NetworkInteraction.wait_for_confirmation(client, txid)
+
+        return txid
+
+    @staticmethod
+    def compile_program(client: algod.AlgodClient, source_code):
+        """
+        :param client: algorand client
+        :param source_code: teal source code
+        :return:
+            Decoded byte program
+        """
+        compile_response = client.compile(source_code)
+        return base64.b64decode(compile_response['result'])

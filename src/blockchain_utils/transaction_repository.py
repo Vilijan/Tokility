@@ -239,6 +239,41 @@ class ASATransactionRepository:
         return txn
 
     @classmethod
+    def asa_transfer(cls,
+                     client: algod.AlgodClient,
+                     sender_address: str,
+                     receiver_address: str,
+                     asa_id: int,
+                     amount: int,
+                     revocation_target: Optional[str],
+                     sender_private_key: Optional[str],
+                     sign_transaction: bool = True) -> Union[Transaction, SignedTransaction]:
+        """
+        :param client:
+        :param sender_address:
+        :param receiver_address:
+        :param asa_id:
+        :param amount:
+        :param revocation_target:
+        :param sender_private_key:
+        :param sign_transaction:
+        :return:
+        """
+        suggested_params = get_default_suggested_params(client=client)
+
+        txn = algo_txn.AssetTransferTxn(sender=sender_address,
+                                        sp=suggested_params,
+                                        receiver=receiver_address,
+                                        amt=amount,
+                                        index=asa_id,
+                                        revocation_target=revocation_target)
+
+        if sign_transaction:
+            txn = txn.sign(private_key=sender_private_key)
+
+        return txn
+
+    @classmethod
     def change_asa_management(cls,
                               client: algod.AlgodClient,
                               current_manager_pk: str,
@@ -288,22 +323,22 @@ class PaymentTransactionRepository:
     @classmethod
     def payment(cls,
                 client: algod.AlgodClient,
-                sender_private_key: str,
+                sender_address: str,
                 receiver_address: str,
                 amount: int,
+                sender_private_key: Optional[str],
                 sign_transaction: bool = True) -> Union[Transaction, SignedTransaction]:
         """
         Creates a payment transaction in ALGOs.
         :param client:
-        :param sender_private_key:
+        :param sender_address:
         :param receiver_address:
         :param amount:
+        :param sender_private_key:
         :param sign_transaction:
         :return:
         """
         suggested_params = get_default_suggested_params(client=client)
-
-        sender_address = algo_acc.address_from_private_key(private_key=sender_private_key)
 
         txn = algo_txn.PaymentTxn(sender=sender_address,
                                   sp=suggested_params,
