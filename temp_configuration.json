@@ -1,0 +1,20 @@
+{
+    "asa_owner_address": "YMHIKTYNC2HZYJUDUH7SUAOT4Z3UZYFYODZCKLSYBKX2BIZ72UZIBXPQFA",
+    "unit_name": "Tokility",
+    "asset_name": "SkopskiMerak",
+    "asa_id": 21847121,
+    "initial_offering_configuration": {
+        "asa_price": 1000000
+    },
+    "economy_configuration": {
+        "max_sell_price": 5000000,
+        "owner_fee": 500000
+    },
+    "asa_metadata": {
+        "band_name": "Skopski Merak",
+        "date": "11.08.2021",
+        "time": "18:00",
+        "table": 25,
+        "image": "https://ipfs.io/ipfs/QmWipYGMDZPPAvPWGGY7ten1RmQ6JENy5KrQPPCZ8MXDGF"
+    }
+}
