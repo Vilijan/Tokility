@@ -2,7 +2,7 @@
     "asa_owner_address": "44VDDGFZAMBQJSQ524CY5QYWAQN7XG3NPORKMMDSYXPVNQA4J4FIRXILXI",
     "unit_name": "Tokility",
     "asset_name": "FooFighters",
-    "asa_id": 21915533,
+    "asa_id": null,
     "initial_offering_configuration": {
         "asa_price": 50000000
     },

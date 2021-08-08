@@ -1,0 +1,176 @@
+{
+  "nfts": [
+    {
+      "asa_owner_address": "T5D4V2V4BRJCJPKWGPOZNTSEL4IOJZ322D4J26ZOIPYG274RHMQDB7RNJM",
+      "unit_name": "Tokility",
+      "asset_name": "PatheCinema",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 10000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 15000000,
+        "owner_fee": 1000000
+      },
+      "asa_metadata": {
+        "business": "Cinema Pathe",
+        "movie": "Primal Fear",
+        "date": "10.10.2021",
+        "time": "21:00",
+        "hall": 15,
+        "row": 30,
+        "seat": 5,
+        "image": "https://ipfs.io/ipfs/QmSg13NNtvpL6ebgeGKxZUHTCxcg4ut6k4dcMrUu5sG664?filename=6.png"
+      }
+    },
+    {
+      "asa_owner_address": "T5D4V2V4BRJCJPKWGPOZNTSEL4IOJZ322D4J26ZOIPYG274RHMQDB7RNJM",
+      "unit_name": "Tokility",
+      "asset_name": "PatheCinema",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 10000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 15000000,
+        "owner_fee": 1000000
+      },
+      "asa_metadata": {
+        "business": "Cinema Pathe",
+        "date": "25.08.2021",
+        "time": "21:00",
+        "movie": "Gone Girl",
+        "hall": 15,
+        "row": 25,
+        "seat": 7,
+        "image": "https://ipfs.io/ipfs/QmTz9RY7UrK3ppaPtUyRe8C3WJHwiRx56337RDZ6UwkR8S?filename=7.png"
+      }
+    },
+    {
+      "asa_owner_address": "44VDDGFZAMBQJSQ524CY5QYWAQN7XG3NPORKMMDSYXPVNQA4J4FIRXILXI",
+      "unit_name": "Tokility",
+      "asset_name": "FooFighters",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 50000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 150000000,
+        "owner_fee": 5000000
+      },
+      "asa_metadata": {
+        "business": "Foo Fighters",
+        "date": "02.09.2021",
+        "time": "21:00",
+        "section": 15,
+        "row": 25,
+        "seat": 15,
+        "image": "https://ipfs.io/ipfs/QmWTaQdEgkQiSUVv7KDQRQmyemNfBBA2BVComLTVVGFYJ9?filename=1.png"
+      }
+    },
+    {
+      "asa_owner_address": "44VDDGFZAMBQJSQ524CY5QYWAQN7XG3NPORKMMDSYXPVNQA4J4FIRXILXI",
+      "unit_name": "Tokility",
+      "asset_name": "FooFighters",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 50000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 150000000,
+        "owner_fee": 5000000
+      },
+      "asa_metadata": {
+        "business": "Foo Fighters",
+        "date": "02.09.2021",
+        "time": "21:00",
+        "section": 15,
+        "row": 25,
+        "seat": 16,
+        "image": "https://ipfs.io/ipfs/QmU356oqyDD7veVRD2xVuQYsAavXspJKJUuTfvj6nm6ryo?filename=2.png"
+      }
+    },
+    {
+      "asa_owner_address": "44VDDGFZAMBQJSQ524CY5QYWAQN7XG3NPORKMMDSYXPVNQA4J4FIRXILXI",
+      "unit_name": "Tokility",
+      "asset_name": "FooFighters",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 50000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 150000000,
+        "owner_fee": 5000000
+      },
+      "asa_metadata": {
+        "business": "Foo Fighters",
+        "date": "02.09.2021",
+        "time": "21:00",
+        "section": 15,
+        "row": 25,
+        "seat": 16,
+        "image": "https://ipfs.io/ipfs/QmSu6NjZ7ZauXAvseH3M8PCPsk939jKf8BCVCdApdWDrV9?filename=3.png"
+      }
+    },
+    {
+      "asa_owner_address": "TNDMFANWLHFIBBD2B767S6QAOJP6OHLGLTRARAV3SQPM4SRMIXFHYIQWZA",
+      "unit_name": "Tokility",
+      "asset_name": "JamieOliver",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 1000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 5000000,
+        "owner_fee": 500000
+      },
+      "asa_metadata": {
+        "business": "Jamie Oliver",
+        "date": "11.08.2021",
+        "time": "18:00",
+        "table": 25,
+        "image": "https://ipfs.io/ipfs/QmTQMNFcAxBw4hf5pU6Ba5XVUTWGwaiJhUiLCGjF3rxu4V/1.png"
+      }
+    },
+    {
+      "asa_owner_address": "TNDMFANWLHFIBBD2B767S6QAOJP6OHLGLTRARAV3SQPM4SRMIXFHYIQWZA",
+      "unit_name": "Tokility",
+      "asset_name": "JamieOliver",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 1000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 5000000,
+        "owner_fee": 500000
+      },
+      "asa_metadata": {
+        "business": "Jamie Oliver",
+        "date": "12.08.2021",
+        "time": "14:00",
+        "table": 16,
+        "image": "https://ipfs.io/ipfs/QmTQMNFcAxBw4hf5pU6Ba5XVUTWGwaiJhUiLCGjF3rxu4V/2.png"
+      }
+    },
+    {
+      "asa_owner_address": "TNDMFANWLHFIBBD2B767S6QAOJP6OHLGLTRARAV3SQPM4SRMIXFHYIQWZA",
+      "unit_name": "Tokility",
+      "asset_name": "JamieOliver",
+      "asa_id": null,
+      "initial_offering_configuration": {
+        "asa_price": 5000000
+      },
+      "economy_configuration": {
+        "max_sell_price": 15000000,
+        "owner_fee": 500000
+      },
+      "asa_metadata": {
+        "business": "Jamie Oliver",
+        "date": "13.08.2021",
+        "time": "17:00",
+        "table": 2,
+        "image": "https://ipfs.io/ipfs/QmTQMNFcAxBw4hf5pU6Ba5XVUTWGwaiJhUiLCGjF3rxu4V/3.png"
+      }
+    }
+  ]
+}

@@ -33,15 +33,12 @@ class ASAConfiguration(BaseModel):
     initial_offering_configuration: ASAInitialOfferingConfiguration
     economy_configuration: ASAEconomyConfiguration
     asa_metadata: Optional[Dict]
+    configuration_ipfs_url: Optional[str]
 
     @property
-    def hashed_metadata_digest(self):
-        if self.asa_metadata is None:
-            return None
-        return sha256(self.asa_metadata.__str__().encode()).digest()
+    def hashed_configuration(self):
+        return sha256(self.dict().__str__().encode()).digest()
 
     @property
-    def hashed_metadata_hexdigest(self):
-        if self.asa_metadata is None:
-            return None
-        return sha256(self.asa_metadata.__str__().encode()).hexdigest()
+    def hashed_configuration_hexdigest(self):
+        return sha256(self.dict().__str__().encode()).hexdigest()

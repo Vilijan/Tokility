@@ -2,7 +2,7 @@
     "asa_owner_address": "44VDDGFZAMBQJSQ524CY5QYWAQN7XG3NPORKMMDSYXPVNQA4J4FIRXILXI",
     "unit_name": "Tokility",
     "asset_name": "FooFighters",
-    "asa_id": 21915420,
+    "asa_id": null,
     "initial_offering_configuration": {
         "asa_price": 50000000
     },
@@ -16,7 +16,7 @@
         "time": "21:00",
         "section": 15,
         "row": 25,
-        "seat": 15,
-        "image": "https://ipfs.io/ipfs/QmWTaQdEgkQiSUVv7KDQRQmyemNfBBA2BVComLTVVGFYJ9?filename=1.png"
+        "seat": 16,
+        "image": "https://ipfs.io/ipfs/QmSu6NjZ7ZauXAvseH3M8PCPsk939jKf8BCVCdApdWDrV9?filename=3.png"
     }
 }

@@ -2,7 +2,7 @@
     "asa_owner_address": "T5D4V2V4BRJCJPKWGPOZNTSEL4IOJZ322D4J26ZOIPYG274RHMQDB7RNJM",
     "unit_name": "Tokility",
     "asset_name": "PatheCinema",
-    "asa_id": 21915906,
+    "asa_id": 21950910,
     "initial_offering_configuration": {
         "asa_price": 10000000
     },
@@ -12,11 +12,13 @@
     },
     "asa_metadata": {
         "business": "Cinema Pathe",
-        "date": "25.08.2021",
+        "movie": "Primal Fear",
+        "date": "10.10.2021",
         "time": "21:00",
         "hall": 15,
-        "row": 25,
-        "seat": 7,
-        "image": "https://ipfs.io/ipfs/QmTz9RY7UrK3ppaPtUyRe8C3WJHwiRx56337RDZ6UwkR8S?filename=7.png"
-    }
+        "row": 30,
+        "seat": 5,
+        "image": "https://ipfs.io/ipfs/QmSg13NNtvpL6ebgeGKxZUHTCxcg4ut6k4dcMrUu5sG664?filename=6.png"
+    },
+    "configuration_ipfs_url": "https://gateway.pinata.cloud/ipfs/QmW6ih2qRmNiB3y6BpST45bKqPPmAvLZZzbCGiDEwGQJJS"
 }
