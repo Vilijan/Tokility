@@ -1,0 +1,22 @@
+{
+    "asa_owner_address": "T5D4V2V4BRJCJPKWGPOZNTSEL4IOJZ322D4J26ZOIPYG274RHMQDB7RNJM",
+    "unit_name": "Tokility",
+    "asset_name": "PatheCinema",
+    "asa_id": 21915827,
+    "initial_offering_configuration": {
+        "asa_price": 10000000
+    },
+    "economy_configuration": {
+        "max_sell_price": 15000000,
+        "owner_fee": 1000000
+    },
+    "asa_metadata": {
+        "business": "Cinema Pathe",
+        "date": "10.10.2021",
+        "time": "21:00",
+        "hall": 15,
+        "row": 30,
+        "seat": 5,
+        "image": "https://ipfs.io/ipfs/QmSg13NNtvpL6ebgeGKxZUHTCxcg4ut6k4dcMrUu5sG664?filename=6.png"
+    }
+}

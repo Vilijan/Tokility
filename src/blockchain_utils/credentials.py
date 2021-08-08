@@ -47,6 +47,12 @@ def get_account_credentials(account_id: int) -> (str, str, str):
     return account.get("private_key"), account.get("address"), account.get("mnemonic")
 
 
+def get_account_with_name(account_name: str) -> (str, str, str):
+    config = load_config()
+    account = config.get(account_name)
+    return account.get("private_key"), account.get("address"), account.get("mnemonic")
+
+
 def add_account_to_config():
     """
     Adds account to the accounts list in the config.yml file.

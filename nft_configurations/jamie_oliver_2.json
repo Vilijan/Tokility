@@ -1,0 +1,20 @@
+{
+    "asa_owner_address": "TNDMFANWLHFIBBD2B767S6QAOJP6OHLGLTRARAV3SQPM4SRMIXFHYIQWZA",
+    "unit_name": "Tokility",
+    "asset_name": "JamieOliver",
+    "asa_id": 21914976,
+    "initial_offering_configuration": {
+        "asa_price": 1000000
+    },
+    "economy_configuration": {
+        "max_sell_price": 5000000,
+        "owner_fee": 500000
+    },
+    "asa_metadata": {
+        "business": "Jamie Oliver",
+        "date": "12.08.2021",
+        "time": "14:00",
+        "table": 16,
+        "image": "https://ipfs.io/ipfs/QmTQMNFcAxBw4hf5pU6Ba5XVUTWGwaiJhUiLCGjF3rxu4V/2.png"
+    }
+}
