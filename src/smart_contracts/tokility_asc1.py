@@ -16,24 +16,40 @@ class AppVariables:
 
     EscrowAddress = Bytes("EscrowAddress")
 
+    @staticmethod
+    def number_of_global_ints():
+        return 5
+
+    @staticmethod
+    def number_of_global_bytes():
+        return 4
+
+    @staticmethod
+    def number_of_local_ints():
+        return 0
+
+    @staticmethod
+    def number_of_local_bytes():
+        return 0
+
 
 class AppMethods:
-    buy_asa = Bytes("buy_asa")
-    sell_asa = Bytes("sell_asa")
-    stop_selling_asa = Bytes("stop_selling_asa")
-    use_asa = Bytes("use_asa")
-    initialize_escrow = Bytes("initialize_escrow")
+    buy_asa = "buy_asa"
+    sell_asa = "sell_asa"
+    stop_selling_asa = "stop_selling_asa"
+    use_asa = "use_asa"
+    initialize_escrow = "initialize_escrow"
 
 
 def application_start(asa_configuration: ASAConfiguration):
     is_app_initialization = Txn.application_id() == Int(0)
 
     actions = Cond(
-        [Txn.application_args[0] == AppMethods.buy_asa, buy_asa_from_owner_logic()],
-        [Txn.application_args[0] == AppMethods.initialize_escrow, initialize_escrow_logic()],
-        [Txn.application_args[0] == AppMethods.stop_selling_asa, stop_selling_asa_logic()],
-        [Txn.application_args[0] == AppMethods.sell_asa, sell_asa_logic()],
-        [Txn.application_args[0] == AppMethods.use_asa, use_asa_logic()]
+        [Txn.application_args[0] == Bytes(AppMethods.buy_asa), buy_asa_from_owner_logic()],
+        [Txn.application_args[0] == Bytes(AppMethods.initialize_escrow), initialize_escrow_logic()],
+        [Txn.application_args[0] == Bytes(AppMethods.stop_selling_asa), stop_selling_asa_logic()],
+        [Txn.application_args[0] == Bytes(AppMethods.sell_asa), sell_asa_logic()],
+        [Txn.application_args[0] == Bytes(AppMethods.use_asa), use_asa_logic()]
     )
 
     return If(is_app_initialization) \
@@ -81,6 +97,7 @@ def buy_asa_from_owner_logic():
 
     # valid second transaction
     valid_escrow = App.globalGet(AppVariables.EscrowAddress) == Gtxn[1].sender()
+    valid_asa_receiver = Gtxn[1].asset_receiver() == Gtxn[2].sender()
 
     # valid third transaction
     correct_funds_receiver = App.globalGet(AppVariables.ASAOwnerAddress) == Gtxn[2].receiver()
@@ -96,10 +113,58 @@ def buy_asa_from_owner_logic():
                       asa_can_be_bought,
                       is_app_active,
                       valid_escrow,
+                      valid_asa_receiver,
                       correct_funds_receiver,
                       correct_price)
 
     return If(valid_logic).Then(update_state).Else(Return(Int(0)))
+
+
+def buy_asa_second_hand_logic():
+    is_second_hand_sell = App.globalGet(AppVariables.ASAOwnerAddress) != App.globalGet(AppVariables.ASACreatorAddress)
+    asa_can_be_bought = App.globalGet(AppVariables.ASACurrentSellPrice) != Int(0)
+    is_app_active = App.globalGet(AppVariables.IsAppActive) == Int(1)
+
+    # Valid second transaction: asset transfer from escrow address.
+    valid_escrow = App.globalGet(AppVariables.EscrowAddress) == Gtxn[1].sender()
+    valid_asa_receiver = Gtxn[1].asset_receiver() == Gtxn[2].sender()
+
+    # Valid third transaction: payment to the current asa seller.
+    correct_funds_receiver = App.globalGet(AppVariables.ASAOwnerAddress) == Gtxn[2].receiver()
+    correct_price = App.globalGet(AppVariables.ASACurrentSellPrice) == Gtxn[2].amount()
+
+    # Valid forth transaction: fee payment to the asa creator.
+    correct_fee_funds_receiver = App.globalGet(AppVariables.ASACreatorAddress) == Gtxn[3].receiver()
+    correct_fee_price = App.globalGet(AppVariables.ResellOwnerFee) == Gtxn[3].amount()
+    is_same_buyer = Gtxn[2].sender() == Gtxn[3].sender()
+
+    update_state = Seq([
+        App.globalPut(AppVariables.ASAOwnerAddress, Gtxn[2].sender()),
+        App.globalPut(AppVariables.ASACurrentSellPrice, Int(0)),
+        Return(Int(1))
+    ])
+
+    valid_logic = And(is_second_hand_sell,
+                      asa_can_be_bought,
+                      is_app_active,
+                      valid_escrow,
+                      valid_asa_receiver,
+                      correct_funds_receiver,
+                      correct_price,
+                      correct_fee_funds_receiver,
+                      correct_fee_price,
+                      is_same_buyer)
+
+    return If(valid_logic) \
+        .Then(update_state) \
+        .Else(Return(Int(0)))
+
+
+def buy_asa():
+    return Cond(
+        [Global.group_size() == Int(3), buy_asa_from_owner_logic()],
+        [Global.group_size() == Int(4), buy_asa_second_hand_logic()]
+    )
 
 
 def stop_selling_asa_logic():
