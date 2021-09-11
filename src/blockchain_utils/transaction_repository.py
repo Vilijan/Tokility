@@ -80,6 +80,22 @@ class ApplicationTransactionRepository:
 
         return txn
 
+    @classmethod
+    def app_opt_in(cls,
+                   client: algod.AlgodClient,
+                   caller_private_key: str,
+                   app_id):
+        caller_address = algo_acc.address_from_private_key(private_key=caller_private_key)
+        suggested_params = get_default_suggested_params(client=client)
+
+        txn = algo_txn.ApplicationOptInTxn(sender=caller_address,
+                                           sp=suggested_params,
+                                           index=app_id)
+
+        txn = txn.sign(caller_private_key)
+
+        return txn
+
 
 class ASATransactionRepository:
     """
