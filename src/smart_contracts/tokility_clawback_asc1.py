@@ -30,14 +30,19 @@ class TokilityClawbackASC1:
         return Seq([
             Assert(Global.group_size() == Int(3)),
 
+            # Valid first transaction
+            Assert(Gtxn[0].type_enum() == TxnType.ApplicationCall),
+            Assert(Gtxn[0].sender() == Gtxn[1].sender()),
+
             # Valid second transaction.
             Assert(Gtxn[1].type_enum() == TxnType.Payment),
-            Assert(Gtxn[1].receiver() == Addr(self.configuration.asa_owner_address), ),
+            Assert(Gtxn[1].receiver() == Addr(self.configuration.asa_owner_address)),
             Assert(Gtxn[1].amount() == Int(self.configuration.initial_offering_configuration.asa_price)),
 
             # Valid third transaction.
             Assert(Gtxn[2].type_enum() == TxnType.AssetTransfer),
             Assert(Gtxn[2].xfer_asset() == Int(self.configuration.asa_id)),
+            Assert(Gtxn[2].asset_receiver() == Gtxn[0].sender()),
 
             # TODO: Later on this should be allowed to more instances to be bought at once.
             Assert(Gtxn[2].asset_amount() == Int(1)),

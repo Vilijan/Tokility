@@ -41,7 +41,6 @@ class TokilityDEX(TokilityDEXInterface):
 
     def application_start(self):
         actions = Cond(
-
             [Txn.application_id() == Int(0), self.app_initialization()],
 
             [Txn.application_args[0] == Bytes(self.AppMethods.initial_buy),
@@ -59,8 +58,12 @@ class TokilityDEX(TokilityDEXInterface):
             [Txn.application_args[0] == Bytes(self.AppMethods.gift_asa),
              self.gift_asa()]
         )
+        return If(Txn.on_completion() == OnComplete.OptIn) \
+            .Then(self.app_opt_in()) \
+            .Else(actions)
 
-        return actions
+    def app_opt_in(self):
+        return Return(Int(1))
 
     def app_initialization(self):
         return Return(Int(1))
@@ -80,23 +83,34 @@ class TokilityDEX(TokilityDEXInterface):
         :return:
         """
 
-        # Transaction 1:
-        # We call the application with asa_id send in the app_call and correct method name as the first argument.
+        # We want to make sure that we are buying a tokility NFT. The NFT
+        # should be frozen and have only a clawback address.
 
         asset_escrow = AssetParam.clawback(Txn.assets[0])
+        manager_address = AssetParam.manager(Txn.assets[0])
+        freeze_address = AssetParam.freeze(Txn.assets[0])
+        reserve_address = AssetParam.reserve(Txn.assets[0])
+        default_frozen = AssetParam.defaultFrozen(Txn.assets[0])
 
-        # THE CLAWBACK CONTRACT VALIDATES THE FEES AND AMOUNT PAID TO THE ASA CREATOR.
         return Seq([
             Assert(Global.group_size() == Int(3)),
 
-            # Valid escrow address.
+            # Valid Token
             asset_escrow,
-            Assert(asset_escrow.value() == Gtxn[2].sender()),
+            manager_address,
+            freeze_address,
+            reserve_address,
+            default_frozen,
+            Assert(asset_escrow.hasValue()),
+            Assert(default_frozen.value()),
+            Assert(manager_address.value() == Global.zero_address()),
+            Assert(freeze_address.value() == Global.zero_address()),
+            Assert(reserve_address.value() == Global.zero_address()),
 
-            # Valid receiver
-            Assert(Gtxn[2].receiver() == Gtxn[1].sender()),
+            # # Valid receiver
             Assert(Gtxn[2].xfer_asset() == Txn.assets[0]),
 
+            Assert(Gtxn[2].asset_receiver() == Gtxn[1].sender()),
             Assert(Gtxn[1].sender() == Gtxn[0].sender()),
 
             Assert(Txn.application_args.length() == Int(1)),
@@ -115,8 +129,6 @@ class TokilityDEX(TokilityDEXInterface):
 
         Atomic Transfer:
         1. Application call.
-        2. Payment from buyer to ASA_CREATOR.
-        3. Asset transfer from Clawback to buyer.
         :return:
         """
         #
