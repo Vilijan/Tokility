@@ -263,3 +263,23 @@ class TokilityDEXService:
         tx_id = NetworkInteraction.submit_transaction(self.client, make_sell_order_txn)
         print("Sell order has been placed.")
         return tx_id
+
+    def stop_selling(self,
+                     seller_pk: str,
+                     asa_id: int):
+        app_args = [
+            TokilityDEX.AppMethods.stop_selling,
+        ]
+
+        stop_sell_order_txn = \
+            ApplicationTransactionRepository.call_application(client=self.client,
+                                                              caller_private_key=seller_pk,
+                                                              app_id=self.app_id,
+                                                              on_complete=algosdk.future.transaction.OnComplete.NoOpOC,
+                                                              app_args=app_args,
+                                                              foreign_assets=[asa_id],
+                                                              sign_transaction=True)
+
+        tx_id = NetworkInteraction.submit_transaction(self.client, stop_sell_order_txn)
+        print("Sell order has been stopped.")
+        return tx_id

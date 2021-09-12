@@ -52,7 +52,7 @@ class TokilityDEX(TokilityDEXInterface):
             [Txn.application_args[0] == Bytes(self.AppMethods.buy_from_seller),
              self.buy_from_seller()],
 
-            [Txn.application_args[0] == Bytes(self.AppMethods.buy_from_seller),
+            [Txn.application_args[0] == Bytes(self.AppMethods.stop_selling),
              self.stop_selling()],
 
             [Txn.application_args[0] == Bytes(self.AppMethods.gift_asa),
@@ -123,7 +123,7 @@ class TokilityDEX(TokilityDEXInterface):
         Foreign assets:
         - asa_id - the ID of the asa that the user wants to sell.
 
-        Atomic Transfer:
+        Single transaction:
         1. Application call.
         :return:
         """
@@ -190,7 +190,23 @@ class TokilityDEX(TokilityDEXInterface):
         )
 
     def stop_selling(self):
-        return Return(Int(0))
+        """
+         Arguments:
+        - app_method_name: str
+
+        Foreign assets:
+        - asa_id - the ID of the asa that the user wants to stop the sell order.
+
+        Single transaction:
+        1. Application call.
+        :return:
+        """
+        return Seq([
+            Assert(Txn.assets.length() == Int(1)),
+            App.localDel(Txn.sender(), Itob(Txn.assets[0])),
+
+            self.approve
+        ])
 
     def gift_asa(self):
         return Return(Int(0))

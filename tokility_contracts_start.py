@@ -4,9 +4,9 @@ from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
 import json
 
-acc_pk, acc_addr, _ = get_account_credentials(4)
-buyer_pk, buyer_add, _ = get_account_credentials(5)
-buyer_2_pk, buyer_2_add, _ = get_account_credentials(6)
+acc_pk, acc_addr, _ = get_account_credentials(7)
+buyer_pk, buyer_add, _ = get_account_credentials(8)
+buyer_2_pk, buyer_2_add, _ = get_account_credentials(9)
 
 client = get_client()
 
@@ -71,12 +71,13 @@ tokility_dex_service.make_sell_offer(seller_pk=buyer_pk,
                                      asa_id=asa_1_config.asa_id,
                                      sell_price=1000000)
 
+tokility_dex_service.stop_selling(seller_pk=buyer_pk,
+                                  asa_id=asa_1_config.asa_id)
+
 # Buy second hand ASA.
 
 asa_service.asa_opt_in(asa_id=asa_1_config.asa_id,
                        user_pk=buyer_2_pk)
-
-
 
 tokility_dex_service.buy_from_seller(buyer_addr=buyer_2_add,
                                      buyer_pk=buyer_2_pk,
@@ -87,6 +88,7 @@ tokility_dex_service.buy_from_seller(buyer_addr=buyer_2_add,
                                      asa_clawback_bytes=asa_1_clawback_bytes)
 
 tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
+
 tokility_dex_service.make_sell_offer(seller_pk=buyer_2_pk,
                                      asa_id=asa_1_config.asa_id,
                                      sell_price=252525)
