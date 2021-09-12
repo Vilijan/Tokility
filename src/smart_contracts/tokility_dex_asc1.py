@@ -209,13 +209,60 @@ class TokilityDEX(TokilityDEXInterface):
         ])
 
     def gift_asa(self):
-        return Return(Int(0))
+        """
+        A ASA_OWNER transfers the ASA to a GIFT_ADDRESS for free. The ASA_OWNER only needs to pay
+        the asa_owner fee to the ASA_CREATOR.
+        This simulates gifting the ASA to a friend instead of selling it through sell offer.
+        Arguments:
+        - app_method_name: str
+        - GIFT_ADDRESS: str - the address which will receive the ASA.
+
+        Foreign assets:
+        - asa_id - the ID of the asa that the user wants to gift.
+
+        Atomic Transfer:
+        1. Application call.
+        2. Payment from ASA_OWNER to ASA_CREATOR. (fees are paid to the asa_creator)
+        3. Asset transfer from Clawback to GIFT_ADDRESS.
+
+        :return:
+        """
+
+        asa_balance = AssetHolding.balance(
+            Txn.sender(),
+            Txn.assets[0],
+        )
+
+        return Seq([
+            # Valid first transaction.
+            # Checks whether the sender that wants to gift the ASA actually owns that ASA.
+            Assert(Txn.assets.length() == Int(1)),
+            Assert(Txn.application_args.length() == Int(2)),
+
+            asa_balance,
+            Assert(asa_balance.hasValue()),
+            Assert(
+                Ge(
+                    asa_balance.value(),
+                    Int(1),
+                )
+            ),
+
+            # Valid second transaction.
+            # The fee conditions are checked in the clawback contract.
+
+            # Valid third transaction
+            Assert(Gtxn[2].asset_receiver() == Txn.application_args[1]),
+            Assert(Txn.assets[0] == Gtxn[2].xfer_asset()),
+
+            self.approve
+        ])
 
     def approval_program(self):
         return self.application_start()
 
     def clear_program(self):
-        return Return(Int(1))
+        return self.approve
 
     @property
     def global_schema(self):

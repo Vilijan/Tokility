@@ -9,6 +9,7 @@ import algosdk
 from pyteal import compileTeal, Mode
 
 
+
 class TokilityDEXService:
     def __init__(self,
                  app_creator_addr,
@@ -282,4 +283,72 @@ class TokilityDEXService:
 
         tx_id = NetworkInteraction.submit_transaction(self.client, stop_sell_order_txn)
         print("Sell order has been stopped.")
+        return tx_id
+
+    def gift_asa(self,
+                 asa_owner_addr: str,
+                 asa_owner_pk: str,
+                 asa_receiver_addr: str,
+                 asa_configuration: ASAConfiguration,
+                 asa_clawback_addr: str,
+                 asa_clawback_bytes):
+        # 1. App call.
+        app_args = [
+            TokilityDEX.AppMethods.gift_asa,
+            algosdk.encoding.decode_address(asa_receiver_addr)
+        ]
+
+        app_call_txn = \
+            ApplicationTransactionRepository.call_application(client=self.client,
+                                                              caller_private_key=asa_owner_pk,
+                                                              app_id=self.app_id,
+                                                              on_complete=algosdk.future.transaction.OnComplete.NoOpOC,
+                                                              app_args=app_args,
+                                                              foreign_assets=[asa_configuration.asa_id],
+                                                              sign_transaction=False)
+
+        # 2. Payment transaction: buyer -> asa_creator.
+        asa_fee_payment_txn = \
+            PaymentTransactionRepository.payment(client=self.client,
+                                                 sender_address=asa_owner_addr,
+                                                 receiver_address=asa_configuration.asa_owner_address,
+                                                 amount=asa_configuration.economy_configuration.owner_fee,
+                                                 sender_private_key=None,
+                                                 sign_transaction=False)
+
+        # 3. Asset transfer transaction: escrow -> asa_receiver
+
+        asa_transfer_txn = ASATransactionRepository.asa_transfer(client=self.client,
+                                                                 sender_address=asa_clawback_addr,
+                                                                 receiver_address=asa_receiver_addr,
+                                                                 amount=1,
+                                                                 asa_id=asa_configuration.asa_id,
+                                                                 revocation_target=asa_owner_addr,
+                                                                 sender_private_key=None,
+                                                                 sign_transaction=False)
+
+        # Atomic transfer
+        gid = algosdk.future.transaction.calculate_group_id([app_call_txn,
+                                                             asa_fee_payment_txn,
+                                                             asa_transfer_txn])
+
+        app_call_txn.group = gid
+        asa_fee_payment_txn.group = gid
+        asa_transfer_txn.group = gid
+
+        app_call_txn_signed = app_call_txn.sign(asa_owner_pk)
+
+        asa_fee_payment_txn_signed = asa_fee_payment_txn.sign(asa_owner_pk)
+
+        asa_transfer_txn_logic_signature = algosdk.future.transaction.LogicSig(asa_clawback_bytes)
+        asa_transfer_txn_signed = algosdk.future.transaction.LogicSigTransaction(asa_transfer_txn,
+                                                                                 asa_transfer_txn_logic_signature)
+
+        signed_group = [app_call_txn_signed,
+                        asa_fee_payment_txn_signed,
+                        asa_transfer_txn_signed]
+
+        tx_id = self.client.send_transactions(signed_group)
+
+        print("ASA has been gifted.")
         return tx_id

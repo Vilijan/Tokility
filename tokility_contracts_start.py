@@ -65,6 +65,16 @@ tokility_dex_service.initial_buy(buyer_addr=buyer_add,
                                  asa_clawback_addr=asa_1_clawback_addr,
                                  asa_clawback_bytes=asa_1_clawback_bytes)
 
+asa_service.asa_opt_in(asa_id=asa_1_config.asa_id,
+                       user_pk=buyer_2_pk)
+
+tokility_dex_service.gift_asa(asa_owner_addr=buyer_add,
+                              asa_owner_pk=buyer_pk,
+                              asa_receiver_addr=buyer_2_add,
+                              asa_configuration=asa_1_config,
+                              asa_clawback_addr=asa_1_clawback_addr,
+                              asa_clawback_bytes=asa_1_clawback_bytes)
+
 # Sell ASA
 
 tokility_dex_service.make_sell_offer(seller_pk=buyer_pk,
