@@ -152,8 +152,97 @@ class TokilityDEXService:
         print("Initial buy completed.")
         return tx_id
 
-    def make_sell_offer(self,
+    def buy_from_seller(self,
+                        buyer_addr: str,
+                        buyer_pk: str,
                         seller_addr: str,
+                        price: int,
+                        asa_configuration: ASAConfiguration,
+                        asa_clawback_addr: str,
+                        asa_clawback_bytes):
+        """
+        Atomic Transfer:
+        1. Application call.
+        2. Payment from buyer to ASA_CREATOR. (fees are paid to the asa_creator)
+        3. Payment from buyer to ASA_SELLER. (the actual price of the ASA on the asa offer)
+        4. Asset transfer from Clawback to buyer.
+        """
+        # 1. App call.
+        app_args = [
+            TokilityDEX.AppMethods.buy_from_seller
+        ]
+
+        app_call_txn = \
+            ApplicationTransactionRepository.call_application(client=self.client,
+                                                              caller_private_key=buyer_pk,
+                                                              app_id=self.app_id,
+                                                              on_complete=algosdk.future.transaction.OnComplete.NoOpOC,
+                                                              app_args=app_args,
+                                                              accounts=[seller_addr],
+                                                              foreign_assets=[asa_configuration.asa_id],
+                                                              sign_transaction=False)
+
+        # 2. Payment transaction: buyer -> asa owner.
+        asa_payment_fee_txn = \
+            PaymentTransactionRepository.payment(client=self.client,
+                                                 sender_address=buyer_addr,
+                                                 receiver_address=asa_configuration.asa_owner_address,
+                                                 amount=asa_configuration.economy_configuration.owner_fee,
+                                                 sender_private_key=None,
+                                                 sign_transaction=False)
+
+        # 3. Payment transaction: buyer -> asa seller
+        asa_sell_price_txn = \
+            PaymentTransactionRepository.payment(client=self.client,
+                                                 sender_address=buyer_addr,
+                                                 receiver_address=seller_addr,
+                                                 amount=price,
+                                                 sender_private_key=None,
+                                                 sign_transaction=False)
+
+        # 4. Asset transfer transaction: escrow -> buyer
+
+        asa_transfer_txn = ASATransactionRepository.asa_transfer(client=self.client,
+                                                                 sender_address=asa_clawback_addr,
+                                                                 receiver_address=buyer_addr,
+                                                                 amount=1,
+                                                                 asa_id=asa_configuration.asa_id,
+                                                                 revocation_target=seller_addr,
+                                                                 sender_private_key=None,
+                                                                 sign_transaction=False)
+
+        # Atomic transfer
+        gid = algosdk.future.transaction.calculate_group_id([app_call_txn,
+                                                             asa_payment_fee_txn,
+                                                             asa_sell_price_txn,
+                                                             asa_transfer_txn])
+
+        app_call_txn.group = gid
+        asa_payment_fee_txn.group = gid
+        asa_sell_price_txn.group = gid
+        asa_transfer_txn.group = gid
+
+        app_call_txn_signed = app_call_txn.sign(buyer_pk)
+
+        asa_payment_fee_txn_signed = asa_payment_fee_txn.sign(buyer_pk)
+
+        asa_sell_price_txn_signed = asa_sell_price_txn.sign(buyer_pk)
+
+        asa_transfer_txn_logic_signature = algosdk.future.transaction.LogicSig(asa_clawback_bytes)
+        asa_transfer_txn_signed = algosdk.future.transaction.LogicSigTransaction(asa_transfer_txn,
+                                                                                 asa_transfer_txn_logic_signature)
+
+        signed_group = [app_call_txn_signed,
+                        asa_payment_fee_txn_signed,
+                        asa_sell_price_txn_signed,
+                        asa_transfer_txn_signed]
+
+        tx_id = self.client.send_transactions(signed_group)
+
+        print(f"Second hand buy completed in {tx_id}")
+        return tx_id
+
+    def make_sell_offer(self,
                         seller_pk: str,
                         asa_id: int,
                         sell_price: int):

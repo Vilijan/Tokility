@@ -41,7 +41,7 @@ class TokilityDEX(TokilityDEXInterface):
 
     def application_start(self):
         actions = Cond(
-            [Txn.application_id() == Int(0), self.app_initialization()],
+            [Txn.application_id() == Int(0), self.approve],
 
             [Txn.application_args[0] == Bytes(self.AppMethods.initial_buy),
              self.initial_buy()],
@@ -58,14 +58,10 @@ class TokilityDEX(TokilityDEXInterface):
             [Txn.application_args[0] == Bytes(self.AppMethods.gift_asa),
              self.gift_asa()]
         )
-        return If(Txn.on_completion() == OnComplete.OptIn) \
-            .Then(self.app_opt_in()) \
-            .Else(actions)
+        return If(Txn.on_completion() == OnComplete.OptIn).Then(self.approve).Else(actions)
 
-    def app_opt_in(self):
-        return Return(Int(1))
-
-    def app_initialization(self):
+    @property
+    def approve(self):
         return Return(Int(1))
 
     def initial_buy(self):
@@ -139,6 +135,7 @@ class TokilityDEX(TokilityDEXInterface):
         )
 
         return Seq([
+            Assert(Txn.assets.length() == Int(1)),
             # Checks whether the sender that wants to sell the ASA actually owns that ASA.
 
             asa_balance,
@@ -152,12 +149,45 @@ class TokilityDEX(TokilityDEXInterface):
 
             # Set the local state of that sender.
             App.localPut(Txn.sender(), Itob(Txn.assets[0]), Btoi(Txn.application_args[1])),
-
             Return(Int(1))
         ])
 
     def buy_from_seller(self):
-        return Return(Int(0))
+        """
+        The escrow handles the fees setup in the asa_configuration. In this call we need
+        to make sure that the seller has made a selling offer and owns the ASA.
+        Arguments:
+        - app_method_name: str
+
+        Foreign assets:
+        - asa_id - the ID of the asa that the user wants to buy.
+
+        Atomic Transfer:
+        1. Application call.
+        2. Payment from buyer to ASA_CREATOR. (fees are paid to the asa_creator)
+        3. Payment from buyer to ASA_SELLER. (the actual price of the ASA on the asa offer)
+        4. Asset transfer from Clawback to buyer.
+
+        :return:
+        """
+        asa_sell_offer = App.localGetEx(Txn.accounts[1], Txn.application_id(), Itob(Txn.assets[0]))
+
+        return Seq(
+            Assert(Txn.accounts.length() == Int(1)),
+            Assert(Txn.assets.length() == Int(1)),
+            # has made a sell offer for the exact same price.
+            asa_sell_offer,
+            Assert(asa_sell_offer.hasValue()),
+            Assert(asa_sell_offer.value() == Gtxn[2].amount()),
+            #
+            # is buying the correct ASA.
+            Assert(Txn.assets[0] == Gtxn[3].xfer_asset()),
+
+            # remove the sell_offer since it has been executed.
+            App.localDel(Txn.accounts[1], Itob(Txn.assets[0])),
+
+            self.approve
+        )
 
     def stop_selling(self):
         return Return(Int(0))

@@ -63,6 +63,7 @@ class ApplicationTransactionRepository:
                          on_complete: algo_txn.OnComplete,
                          app_args: Optional[List[Any]] = None,
                          foreign_assets: Optional[List[int]] = None,
+                         accounts: Optional[List[str]] = None,
                          sign_transaction: bool = True) -> Union[Transaction, SignedTransaction]:
 
         caller_address = algo_acc.address_from_private_key(private_key=caller_private_key)
@@ -72,7 +73,9 @@ class ApplicationTransactionRepository:
                                           sp=suggested_params,
                                           index=app_id,
                                           app_args=app_args,
+                                          accounts=accounts,
                                           foreign_assets=foreign_assets,
+
                                           on_complete=on_complete)
 
         if sign_transaction:
