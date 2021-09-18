@@ -4,6 +4,11 @@ from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
 import json
 
+
+def algo(micro_algo) -> int:
+    return int(micro_algo * 1000000)
+
+
 acc_pk, acc_addr, _ = get_account_credentials(7)
 buyer_pk, buyer_add, _ = get_account_credentials(8)
 buyer_2_pk, buyer_2_add, _ = get_account_credentials(9)
@@ -15,6 +20,8 @@ tokility_dex_service = TokilityDEXService(app_creator_addr=acc_addr,
                                           app_creator_pk=acc_pk,
                                           client=client)
 
+print(tokility_dex_service.app_id)
+
 asa_service = ASAService(creator_addr=acc_addr,
                          creator_pk=acc_pk,
                          tokility_dex_app_id=tokility_dex_service.app_id,
@@ -22,10 +29,15 @@ asa_service = ASAService(creator_addr=acc_addr,
 
 # Creating and deploying the ASAs.
 
-initial_offering_config = ASAInitialOfferingConfiguration(asa_price=10000)
-economy_configuration = ASAEconomyConfiguration(max_sell_price=10000000, owner_fee=1000)
+initial_offering_config = ASAInitialOfferingConfiguration(asa_price=algo(0.5),
+                                                          tokiliy_fee=algo(0.1))
+economy_configuration = ASAEconomyConfiguration(max_sell_price=algo(10),
+                                                owner_fee=algo(0.5),
+                                                reselling_allowed=1,
+                                                reselling_end_date=1668143794,
+                                                gifting_allowed=1)
 
-asa_1_config = ASAConfiguration(asa_owner_address=acc_addr,
+asa_1_config = ASAConfiguration(asa_creator_address=acc_addr,
                                 unit_name="TOK",
                                 asset_name="TOK",
                                 initial_offering_configuration=initial_offering_config,
@@ -68,21 +80,21 @@ tokility_dex_service.initial_buy(buyer_addr=buyer_add,
 asa_service.asa_opt_in(asa_id=asa_1_config.asa_id,
                        user_pk=buyer_2_pk)
 
-tokility_dex_service.gift_asa(asa_owner_addr=buyer_add,
-                              asa_owner_pk=buyer_pk,
-                              asa_receiver_addr=buyer_2_add,
-                              asa_configuration=asa_1_config,
-                              asa_clawback_addr=asa_1_clawback_addr,
-                              asa_clawback_bytes=asa_1_clawback_bytes)
+# tokility_dex_service.gift_asa(asa_owner_addr=buyer_add,
+#                               asa_owner_pk=buyer_pk,
+#                               asa_receiver_addr=buyer_2_add,
+#                               asa_configuration=asa_1_config,
+#                               asa_clawback_addr=asa_1_clawback_addr,
+#                               asa_clawback_bytes=asa_1_clawback_bytes)
 
 # Sell ASA
 
 tokility_dex_service.make_sell_offer(seller_pk=buyer_pk,
-                                     asa_id=asa_1_config.asa_id,
-                                     sell_price=1000000)
+                                     sell_price=1000000,
+                                     asa_configuration=asa_1_config)
 
 tokility_dex_service.stop_selling(seller_pk=buyer_pk,
-                                  asa_id=asa_1_config.asa_id)
+                                  asa_configuration=asa_1_config)
 
 # Buy second hand ASA.
 
@@ -100,43 +112,43 @@ tokility_dex_service.buy_from_seller(buyer_addr=buyer_2_add,
 tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
 
 tokility_dex_service.make_sell_offer(seller_pk=buyer_2_pk,
-                                     asa_id=asa_1_config.asa_id,
-                                     sell_price=252525)
+                                     sell_price=252525,
+                                     asa_configuration=asa_1_config)
 
 # Buyer #2
 
-#
-# asa_2_config = ASAConfiguration(asa_owner_address=acc_addr,
-#                                 unit_name="WAW",
-#                                 asset_name="WAW",
-#                                 initial_offering_configuration=initial_offering_config,
-#                                 economy_configuration=economy_configuration)
-#
-# asa_2_id, _ = asa_service.create_asa(asa_configuration=asa_2_config)
-# asa_2_config.asa_id = asa_2_id
-#
-# asa_2_clawback_addr, asa_2_clawback_bytes = asa_service.create_clawback(asa_configuration=asa_2_config)
-# tokility_dex_service.fund_address(receiver_address=asa_2_clawback_addr)
-#
-# asa_service.update_asa_management(asa_id=asa_2_config.asa_id,
-#                                   manager_address="",
-#                                   reserve_address="",
-#                                   freeze_address="",
-#                                   clawback_address=asa_2_clawback_addr)
-#
-# tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
-# asa_service.asa_opt_in(asa_id=asa_2_config.asa_id,
-#                        user_pk=buyer_2_pk)
-#
-# tokility_dex_service.initial_buy(buyer_addr=buyer_2_add,
-#                                  buyer_pk=buyer_2_pk,
-#                                  asa_configuration=asa_2_config,
-#                                  asa_clawback_addr=asa_2_clawback_addr,
-#                                  asa_clawback_bytes=asa_2_clawback_bytes)
-#
-# tokility_dex_service.make_sell_offer(seller_pk=buyer_2_pk,
-#                                      asa_id=asa_2_config.asa_id,
-#                                      sell_price=991999)
+
+asa_2_config = ASAConfiguration(asa_creator_address=acc_addr,
+                                unit_name="WAW",
+                                asset_name="WAW",
+                                initial_offering_configuration=initial_offering_config,
+                                economy_configuration=economy_configuration)
+
+asa_2_id, _ = asa_service.create_asa(asa_configuration=asa_2_config)
+asa_2_config.asa_id = asa_2_id
+
+asa_2_clawback_addr, asa_2_clawback_bytes = asa_service.create_clawback(asa_configuration=asa_2_config)
+tokility_dex_service.fund_address(receiver_address=asa_2_clawback_addr)
+
+asa_service.update_asa_management(asa_id=asa_2_config.asa_id,
+                                  manager_address="",
+                                  reserve_address="",
+                                  freeze_address="",
+                                  clawback_address=asa_2_clawback_addr)
+
+tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
+asa_service.asa_opt_in(asa_id=asa_2_config.asa_id,
+                       user_pk=buyer_2_pk)
+
+tokility_dex_service.initial_buy(buyer_addr=buyer_2_add,
+                                 buyer_pk=buyer_2_pk,
+                                 asa_configuration=asa_2_config,
+                                 asa_clawback_addr=asa_2_clawback_addr,
+                                 asa_clawback_bytes=asa_2_clawback_bytes)
+
+tokility_dex_service.make_sell_offer(seller_pk=buyer_2_pk,
+                                     sell_price=991999,
+                                     asa_configuration=asa_2_config)
 
 # Query the indexer to list all the orders.
 

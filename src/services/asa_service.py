@@ -5,6 +5,7 @@ from src.services import NetworkInteraction
 from src.smart_contracts.tokility_clawback_asc1 import TokilityClawbackASC1
 import algosdk
 from pyteal import compileTeal, Mode
+from hashlib import sha256
 
 
 class ASAService:
@@ -37,6 +38,7 @@ class ASAService:
             freeze_address=self.creator_addr,
             clawback_address=self.creator_addr,
             url=None,
+            metadata_hash=sha256(asa_configuration.metadata_hash).digest(),
             default_frozen=True,
             sign_transaction=True,
         )

@@ -9,7 +9,6 @@ import algosdk
 from pyteal import compileTeal, Mode
 
 
-
 class TokilityDEXService:
     def __init__(self,
                  app_creator_addr,
@@ -42,6 +41,9 @@ class TokilityDEXService:
         clear_program_bytes = NetworkInteraction.compile_program(client=self.client,
                                                                  source_code=clear_program_compiled)
 
+        app_args = [
+            algosdk.encoding.decode_address(self.app_creator_addr)
+        ]
         app_transaction = ApplicationTransactionRepository.create_application(
             client=self.client,
             creator_private_key=self.app_creator_pk,
@@ -49,6 +51,8 @@ class TokilityDEXService:
             clear_program=clear_program_bytes,
             global_schema=tokility_dex.global_schema,
             local_schema=tokility_dex.local_schema,
+            # TODO: Maybe pass a new wallet address.
+            app_args=app_args
         )
 
         tx_id = NetworkInteraction.submit_transaction(
@@ -62,6 +66,19 @@ class TokilityDEXService:
         print('Application deployed')
 
         return app_id
+
+    @staticmethod
+    def dex_configuration_arguments(asa_configuration: ASAConfiguration):
+        return [
+            asa_configuration.asa_price_bytes,
+            asa_configuration.tokiliy_fee_bytes,
+            asa_configuration.max_sell_price_bytes,
+            asa_configuration.owner_fee_bytes,
+            asa_configuration.reselling_allowed_bytes,
+            asa_configuration.reselling_end_date_bytes,
+            asa_configuration.gifting_allowed_bytes,
+            asa_configuration.asa_creator_address_bytes
+        ]
 
     def fund_address(self, receiver_address: str, amount: int = 1000000):
         fund_clawback_txn = PaymentTransactionRepository.payment(
@@ -97,6 +114,7 @@ class TokilityDEXService:
         app_args = [
             TokilityDEX.AppMethods.initial_buy
         ]
+        app_args.extend(TokilityDEXService.dex_configuration_arguments(asa_configuration))
 
         app_call_txn = \
             ApplicationTransactionRepository.call_application(client=self.client,
@@ -111,7 +129,7 @@ class TokilityDEXService:
         asa_buy_payment_txn = \
             PaymentTransactionRepository.payment(client=self.client,
                                                  sender_address=buyer_addr,
-                                                 receiver_address=asa_configuration.asa_owner_address,
+                                                 receiver_address=asa_configuration.asa_creator_address,
                                                  amount=asa_configuration.initial_offering_configuration.asa_price,
                                                  sender_private_key=None,
                                                  sign_transaction=False)
@@ -123,7 +141,7 @@ class TokilityDEXService:
                                                                  receiver_address=buyer_addr,
                                                                  amount=1,
                                                                  asa_id=asa_configuration.asa_id,
-                                                                 revocation_target=asa_configuration.asa_owner_address,
+                                                                 revocation_target=asa_configuration.asa_creator_address,
                                                                  sender_private_key=None,
                                                                  sign_transaction=False)
 
@@ -153,6 +171,29 @@ class TokilityDEXService:
         print("Initial buy completed.")
         return tx_id
 
+    def make_sell_offer(self,
+                        seller_pk: str,
+                        sell_price: int,
+                        asa_configuration: ASAConfiguration):
+        app_args = [
+            TokilityDEX.AppMethods.sell_asa,
+        ]
+        app_args.extend(TokilityDEXService.dex_configuration_arguments(asa_configuration))
+        app_args.append(sell_price)
+
+        make_sell_order_txn = \
+            ApplicationTransactionRepository.call_application(client=self.client,
+                                                              caller_private_key=seller_pk,
+                                                              app_id=self.app_id,
+                                                              on_complete=algosdk.future.transaction.OnComplete.NoOpOC,
+                                                              app_args=app_args,
+                                                              foreign_assets=[asa_configuration.asa_id],
+                                                              sign_transaction=True)
+
+        tx_id = NetworkInteraction.submit_transaction(self.client, make_sell_order_txn)
+        print("Sell order has been placed.")
+        return tx_id
+
     def buy_from_seller(self,
                         buyer_addr: str,
                         buyer_pk: str,
@@ -163,16 +204,19 @@ class TokilityDEXService:
                         asa_clawback_bytes):
         """
         Atomic Transfer:
-        1. Application call.
-        2. Payment from buyer to ASA_CREATOR. (fees are paid to the asa_creator)
-        3. Payment from buyer to ASA_SELLER. (the actual price of the ASA on the asa offer)
+        0. Application call.
+        1. Payment from buyer to ASA_CREATOR. (fees are paid to the asa_creator)
+        2. Payment from buyer to ASA_SELLER. (the actual price of the ASA on the asa offer)
+        3. Payment from buyer to TOKILITY. (fees for the platform).
         4. Asset transfer from Clawback to buyer.
         """
         # 1. App call.
         app_args = [
             TokilityDEX.AppMethods.buy_from_seller
         ]
+        app_args.extend(TokilityDEXService.dex_configuration_arguments(asa_configuration))
 
+        # 0. Application call
         app_call_txn = \
             ApplicationTransactionRepository.call_application(client=self.client,
                                                               caller_private_key=buyer_pk,
@@ -183,21 +227,30 @@ class TokilityDEXService:
                                                               foreign_assets=[asa_configuration.asa_id],
                                                               sign_transaction=False)
 
-        # 2. Payment transaction: buyer -> asa owner.
-        asa_payment_fee_txn = \
+        # 1. Payment transaction: buyer -> asa creator.
+        creator_fee_txn = \
             PaymentTransactionRepository.payment(client=self.client,
                                                  sender_address=buyer_addr,
-                                                 receiver_address=asa_configuration.asa_owner_address,
+                                                 receiver_address=asa_configuration.asa_creator_address,
                                                  amount=asa_configuration.economy_configuration.owner_fee,
                                                  sender_private_key=None,
                                                  sign_transaction=False)
 
-        # 3. Payment transaction: buyer -> asa seller
+        # 2. Payment transaction: buyer -> asa seller
         asa_sell_price_txn = \
             PaymentTransactionRepository.payment(client=self.client,
                                                  sender_address=buyer_addr,
                                                  receiver_address=seller_addr,
                                                  amount=price,
+                                                 sender_private_key=None,
+                                                 sign_transaction=False)
+
+        # 3. Platform fees: buyer -> platform address
+        platform_fee_txn = \
+            PaymentTransactionRepository.payment(client=self.client,
+                                                 sender_address=buyer_addr,
+                                                 receiver_address=self.app_creator_addr,
+                                                 amount=asa_configuration.initial_offering_configuration.tokiliy_fee,
                                                  sender_private_key=None,
                                                  sign_transaction=False)
 
@@ -214,28 +267,30 @@ class TokilityDEXService:
 
         # Atomic transfer
         gid = algosdk.future.transaction.calculate_group_id([app_call_txn,
-                                                             asa_payment_fee_txn,
+                                                             creator_fee_txn,
                                                              asa_sell_price_txn,
+                                                             platform_fee_txn,
                                                              asa_transfer_txn])
 
         app_call_txn.group = gid
-        asa_payment_fee_txn.group = gid
+        creator_fee_txn.group = gid
         asa_sell_price_txn.group = gid
+        platform_fee_txn.group = gid
         asa_transfer_txn.group = gid
 
         app_call_txn_signed = app_call_txn.sign(buyer_pk)
-
-        asa_payment_fee_txn_signed = asa_payment_fee_txn.sign(buyer_pk)
-
+        creator_fee_txn_txn_signed = creator_fee_txn.sign(buyer_pk)
         asa_sell_price_txn_signed = asa_sell_price_txn.sign(buyer_pk)
+        platform_fee_txn_signed = platform_fee_txn.sign(buyer_pk)
 
         asa_transfer_txn_logic_signature = algosdk.future.transaction.LogicSig(asa_clawback_bytes)
         asa_transfer_txn_signed = algosdk.future.transaction.LogicSigTransaction(asa_transfer_txn,
                                                                                  asa_transfer_txn_logic_signature)
 
         signed_group = [app_call_txn_signed,
-                        asa_payment_fee_txn_signed,
+                        creator_fee_txn_txn_signed,
                         asa_sell_price_txn_signed,
+                        platform_fee_txn_signed,
                         asa_transfer_txn_signed]
 
         tx_id = self.client.send_transactions(signed_group)
@@ -243,34 +298,13 @@ class TokilityDEXService:
         print(f"Second hand buy completed in {tx_id}")
         return tx_id
 
-    def make_sell_offer(self,
-                        seller_pk: str,
-                        asa_id: int,
-                        sell_price: int):
-        app_args = [
-            TokilityDEX.AppMethods.sell_asa,
-            sell_price
-        ]
-
-        make_sell_order_txn = \
-            ApplicationTransactionRepository.call_application(client=self.client,
-                                                              caller_private_key=seller_pk,
-                                                              app_id=self.app_id,
-                                                              on_complete=algosdk.future.transaction.OnComplete.NoOpOC,
-                                                              app_args=app_args,
-                                                              foreign_assets=[asa_id],
-                                                              sign_transaction=True)
-
-        tx_id = NetworkInteraction.submit_transaction(self.client, make_sell_order_txn)
-        print("Sell order has been placed.")
-        return tx_id
-
     def stop_selling(self,
                      seller_pk: str,
-                     asa_id: int):
+                     asa_configuration: ASAConfiguration):
         app_args = [
             TokilityDEX.AppMethods.stop_selling,
         ]
+        app_args.extend(TokilityDEXService.dex_configuration_arguments(asa_configuration))
 
         stop_sell_order_txn = \
             ApplicationTransactionRepository.call_application(client=self.client,
@@ -278,7 +312,7 @@ class TokilityDEXService:
                                                               app_id=self.app_id,
                                                               on_complete=algosdk.future.transaction.OnComplete.NoOpOC,
                                                               app_args=app_args,
-                                                              foreign_assets=[asa_id],
+                                                              foreign_assets=[asa_configuration.asa_id],
                                                               sign_transaction=True)
 
         tx_id = NetworkInteraction.submit_transaction(self.client, stop_sell_order_txn)
@@ -292,12 +326,22 @@ class TokilityDEXService:
                  asa_configuration: ASAConfiguration,
                  asa_clawback_addr: str,
                  asa_clawback_bytes):
+        """
+        Atomic Transfer:
+        0. Application call.
+        1. Payment from ASA_OWNER to ASA_CREATOR. (fees for creator).
+        2. Payment from ASA_OWNER to TOKILITY_ADDR. (fees for platform).
+        3. Asset transfer from Clawback to GIFT_ADDRESS.
+        """
         # 1. App call.
         app_args = [
             TokilityDEX.AppMethods.gift_asa,
-            algosdk.encoding.decode_address(asa_receiver_addr)
         ]
+        app_args.extend(TokilityDEXService.dex_configuration_arguments(asa_configuration))
 
+        app_args.append(algosdk.encoding.decode_address(asa_receiver_addr))
+
+        # 0. Application call
         app_call_txn = \
             ApplicationTransactionRepository.call_application(client=self.client,
                                                               caller_private_key=asa_owner_pk,
@@ -307,12 +351,21 @@ class TokilityDEXService:
                                                               foreign_assets=[asa_configuration.asa_id],
                                                               sign_transaction=False)
 
-        # 2. Payment transaction: buyer -> asa_creator.
-        asa_fee_payment_txn = \
+        # 1. Fee for the creator: asa_owner -> asa_creator
+        creator_fee_txn = \
             PaymentTransactionRepository.payment(client=self.client,
                                                  sender_address=asa_owner_addr,
-                                                 receiver_address=asa_configuration.asa_owner_address,
+                                                 receiver_address=asa_configuration.asa_creator_address,
                                                  amount=asa_configuration.economy_configuration.owner_fee,
+                                                 sender_private_key=None,
+                                                 sign_transaction=False)
+
+        # 2. Fee for the platform: asa_owner -> platform_address
+        platform_fee_txn = \
+            PaymentTransactionRepository.payment(client=self.client,
+                                                 sender_address=asa_owner_addr,
+                                                 receiver_address=self.app_creator_addr,
+                                                 amount=asa_configuration.initial_offering_configuration.tokiliy_fee,
                                                  sender_private_key=None,
                                                  sign_transaction=False)
 
@@ -329,23 +382,27 @@ class TokilityDEXService:
 
         # Atomic transfer
         gid = algosdk.future.transaction.calculate_group_id([app_call_txn,
-                                                             asa_fee_payment_txn,
+                                                             creator_fee_txn,
+                                                             platform_fee_txn,
                                                              asa_transfer_txn])
 
         app_call_txn.group = gid
-        asa_fee_payment_txn.group = gid
+        creator_fee_txn.group = gid
+        platform_fee_txn.group = gid
         asa_transfer_txn.group = gid
 
         app_call_txn_signed = app_call_txn.sign(asa_owner_pk)
 
-        asa_fee_payment_txn_signed = asa_fee_payment_txn.sign(asa_owner_pk)
+        creator_fee_txn_signed = creator_fee_txn.sign(asa_owner_pk)
+        platform_fee_txn_signed = platform_fee_txn.sign(asa_owner_pk)
 
         asa_transfer_txn_logic_signature = algosdk.future.transaction.LogicSig(asa_clawback_bytes)
         asa_transfer_txn_signed = algosdk.future.transaction.LogicSigTransaction(asa_transfer_txn,
                                                                                  asa_transfer_txn_logic_signature)
 
         signed_group = [app_call_txn_signed,
-                        asa_fee_payment_txn_signed,
+                        creator_fee_txn_signed,
+                        platform_fee_txn_signed,
                         asa_transfer_txn_signed]
 
         tx_id = self.client.send_transactions(signed_group)

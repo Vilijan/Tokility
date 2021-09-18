@@ -92,4 +92,4 @@ class ASAConfiguration(BaseModel):
                self.dash_bytes + \
                self.gifting_allowed_bytes + \
                self.dash_bytes + \
-               self.asa_owner_address_bytes
+               self.asa_creator_address_bytes
