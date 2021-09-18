@@ -120,25 +120,8 @@ class ASATransactionRepository:
                    clawback_address: Optional[str] = None,
                    url: Optional[str] = None,
                    default_frozen: bool = False,
+                   metadata_hash: Optional[Any] = None,
                    sign_transaction: bool = True) -> Union[Transaction, SignedTransaction]:
-        """
-
-        :param client:
-        :param creator_private_key:
-        :param unit_name:
-        :param asset_name:
-        :param total:
-        :param decimals:
-        :param note:
-        :param manager_address:
-        :param reserve_address:
-        :param freeze_address:
-        :param clawback_address:
-        :param url:
-        :param default_frozen:
-        :param sign_transaction:
-        :return:
-        """
 
         suggested_params = get_default_suggested_params(client=client)
 
@@ -156,7 +139,8 @@ class ASATransactionRepository:
                                       clawback=clawback_address,
                                       url=url,
                                       decimals=decimals,
-                                      note=note)
+                                      note=note,
+                                      metadata_hash=metadata_hash)
 
         if sign_transaction:
             txn = txn.sign(private_key=creator_private_key)
@@ -176,23 +160,8 @@ class ASATransactionRepository:
                                 clawback_address: Optional[str] = None,
                                 url: Optional[str] = None,
                                 default_frozen: bool = False,
+                                metadata_hash: Optional[Any] = None,
                                 sign_transaction: bool = True) -> Union[Transaction, SignedTransaction]:
-        """
-
-        :param client:
-        :param creator_private_key:
-        :param unit_name:
-        :param asset_name:
-        :param note:
-        :param manager_address:
-        :param reserve_address:
-        :param freeze_address:
-        :param clawback_address:
-        :param url:
-        :param default_frozen:
-        :param sign_transaction:
-        :return:
-        """
 
         return ASATransactionRepository.create_asa(client=client,
                                                    creator_private_key=creator_private_key,
@@ -207,6 +176,7 @@ class ASATransactionRepository:
                                                    clawback_address=clawback_address,
                                                    url=url,
                                                    default_frozen=default_frozen,
+                                                   metadata_hash=metadata_hash,
                                                    sign_transaction=sign_transaction)
 
     @classmethod

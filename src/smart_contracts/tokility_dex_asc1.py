@@ -7,22 +7,18 @@ class TokilityDEXInterface(ABC):
 
     @abstractmethod
     def initial_buy(self, asa_id):
-        # asa_id
         pass
 
     @abstractmethod
     def sell_asa(self):
-        # asa_id, price
         pass
 
     @abstractmethod
     def buy_from_seller(self):
-        # asa_id, seller_address
         pass
 
     @abstractmethod
     def stop_selling(self):
-        # asa_id
         pass
 
     @abstractmethod
@@ -32,6 +28,14 @@ class TokilityDEXInterface(ABC):
 
 
 class TokilityDEX(TokilityDEXInterface):
+    """
+    Stateful smart contract that implements the tokility DEX.
+    When executing methods of this smart contract, the first 9 parameters are fixed.
+    1. Method of the name
+    2-9. Tokility Token configuration. sha256(args[1]...args[8]) == ASA.Metadata Hash
+    This ensures that whenever we try to interact we the token we are following the rules defined by the owner.
+    """
+
     class AppMethods:
         initial_buy = "initial_buy"
         sell_asa = "sell_asa"
@@ -39,9 +43,24 @@ class TokilityDEX(TokilityDEXInterface):
         stop_selling = "stop_selling"
         gift_asa = "gift_asa"
 
+    class ASAConfiguration:
+        asa_price = 1
+        tokility_fee = 2
+        max_sell_price = 3
+        creator_fee = 4
+        reselling_allowed = 5
+        reselling_end_date = 6
+        gifting_allowed = 7
+        creator_address = 8
+
+    class GlobalVariables:
+        tokility_fee_address = Bytes("tokility_fee_address")
+
+    MIN_NUM_PARAMETERS = 9
+
     def application_start(self):
         actions = Cond(
-            [Txn.application_id() == Int(0), self.approve],
+            [Txn.application_id() == Int(0), self.initialize_app()],
 
             [Txn.application_args[0] == Bytes(self.AppMethods.initial_buy),
              self.initial_buy()],
@@ -64,10 +83,21 @@ class TokilityDEX(TokilityDEXInterface):
     def approve(self):
         return Return(Int(1))
 
+    def initialize_app(self):
+        """
+        Setup the tokility address in the global variable address.
+        :return:
+        """
+        return Seq([
+            App.globalPut(self.GlobalVariables.tokility_fee_address, Txn.application_args[0]),
+            Return(Int(1))
+        ])
+
     def initial_buy(self):
         """
         Arguments:
-        - app_method_name: str
+        1. app_method_name: str
+        [2-9]. config arguments
 
         Foreign assets:
         - asa_id - the ID of the asa that the user wants to buy.
@@ -81,7 +111,6 @@ class TokilityDEX(TokilityDEXInterface):
 
         # We want to make sure that we are buying a tokility NFT. The NFT
         # should be frozen and have only a clawback address.
-
         asset_escrow = AssetParam.clawback(Txn.assets[0])
         manager_address = AssetParam.manager(Txn.assets[0])
         freeze_address = AssetParam.freeze(Txn.assets[0])
@@ -89,8 +118,6 @@ class TokilityDEX(TokilityDEXInterface):
         default_frozen = AssetParam.defaultFrozen(Txn.assets[0])
 
         return Seq([
-            Assert(Global.group_size() == Int(3)),
-
             # Valid Token
             asset_escrow,
             manager_address,
@@ -103,13 +130,20 @@ class TokilityDEX(TokilityDEXInterface):
             Assert(freeze_address.value() == Global.zero_address()),
             Assert(reserve_address.value() == Global.zero_address()),
 
-            # # Valid receiver
+            # Valid app call transaction
+            Assert(Global.group_size() == Int(3)),
+            Assert(Txn.application_args.length() == Int(self.MIN_NUM_PARAMETERS)),
+            Assert(Gtxn[0].sender() == Gtxn[1].sender()),
+
+            # Valid payment transaction
+            Assert(Gtxn[1].type_enum() == TxnType.Payment),
+            Assert(Gtxn[1].receiver() == Txn.application_args[self.ASAConfiguration.creator_address]),
+            Assert(Gtxn[1].amount() == Txn.application_args[self.ASAConfiguration.asa_price]),
+
+            # Valid asset transfer
+            Assert(Gtxn[2].asset_amount() == Int(1)),  # Currently we only support NFTs... this should change.
             Assert(Gtxn[2].xfer_asset() == Txn.assets[0]),
-
-            Assert(Gtxn[2].asset_receiver() == Gtxn[1].sender()),
-            Assert(Gtxn[1].sender() == Gtxn[0].sender()),
-
-            Assert(Txn.application_args.length() == Int(1)),
+            Assert(Gtxn[2].asset_receiver() == Txn.sender()),
 
             Return(Int(1))
         ])
@@ -117,8 +151,9 @@ class TokilityDEX(TokilityDEXInterface):
     def sell_asa(self):
         """
          Arguments:
-        - app_method_name: str
-        - asa_price: int - the price of the ASA in microAlgos
+        1. app_method_name: str
+        [2-9]. config arguments
+        10. asa_price: int - the price of the ASA in microAlgos
 
         Foreign assets:
         - asa_id - the ID of the asa that the user wants to sell.
@@ -128,7 +163,6 @@ class TokilityDEX(TokilityDEXInterface):
         :return:
         """
         #
-
         asa_balance = AssetHolding.balance(
             Txn.sender(),
             Txn.assets[0],
@@ -136,8 +170,9 @@ class TokilityDEX(TokilityDEXInterface):
 
         return Seq([
             Assert(Txn.assets.length() == Int(1)),
-            # Checks whether the sender that wants to sell the ASA actually owns that ASA.
+            Assert(Txn.application_args.length() == Int(self.MIN_NUM_PARAMETERS + 1)),
 
+            # Checks whether the sender that wants to sell the ASA actually owns that ASA.
             asa_balance,
             Assert(asa_balance.hasValue()),
             Assert(
@@ -147,8 +182,11 @@ class TokilityDEX(TokilityDEXInterface):
                 )
             ),
 
+            Assert(Btoi(Txn.application_args[self.ASAConfiguration.reselling_allowed]) == Int(1)),
+            Assert(Btoi(Txn.application_args[self.ASAConfiguration.reselling_end_date]) < Global.latest_timestamp()),
+
             # Set the local state of that sender.
-            App.localPut(Txn.sender(), Itob(Txn.assets[0]), Btoi(Txn.application_args[1])),
+            App.localPut(Txn.sender(), Itob(Txn.assets[0]), Btoi(Txn.application_args[10])),
             Return(Int(1))
         ])
 
@@ -157,31 +195,66 @@ class TokilityDEX(TokilityDEXInterface):
         The escrow handles the fees setup in the asa_configuration. In this call we need
         to make sure that the seller has made a selling offer and owns the ASA.
         Arguments:
-        - app_method_name: str
+        1. app_method_name: str
+        [2-9]. config arguments
 
         Foreign assets:
         - asa_id - the ID of the asa that the user wants to buy.
 
+        Accounts:
+        - address of the seller
+
         Atomic Transfer:
-        1. Application call.
-        2. Payment from buyer to ASA_CREATOR. (fees are paid to the asa_creator)
-        3. Payment from buyer to ASA_SELLER. (the actual price of the ASA on the asa offer)
+        0. Application call.
+        1. Payment from buyer to ASA_CREATOR. (fees are paid to the asa_creator)
+        2. Payment from buyer to ASA_SELLER. (the actual price of the ASA on the asa offer)
+        3. Payment from buyer to TOKILITY. (fees for the platform).
         4. Asset transfer from Clawback to buyer.
 
         :return:
         """
         asa_sell_offer = App.localGetEx(Txn.accounts[1], Txn.application_id(), Itob(Txn.assets[0]))
+        tokility_fee_address = App.globalGet(self.GlobalVariables.tokility_fee_address)
 
         return Seq(
             Assert(Txn.accounts.length() == Int(1)),
             Assert(Txn.assets.length() == Int(1)),
-            # has made a sell offer for the exact same price.
+            Assert(Txn.application_args.length() == Int(self.MIN_NUM_PARAMETERS)),
+            Assert(Global.group_size() == Int(5)),
+
+            # has made a sell offer.
             asa_sell_offer,
             Assert(asa_sell_offer.hasValue()),
-            Assert(asa_sell_offer.value() == Gtxn[2].amount()),
-            #
-            # is buying the correct ASA.
-            Assert(Txn.assets[0] == Gtxn[3].xfer_asset()),
+
+            # is allowed to buy it from the configuration constraints.
+            Assert(Global.latest_timestamp() < Txn.application_args[self.ASAConfiguration.reselling_end_date]),
+            Assert(Txn.application_args[self.ASAConfiguration.reselling_allowed] == Int(1)),
+
+            # application call
+            Assert(Gtxn[0].sender() == Gtxn[1].sender()),
+            Assert(Gtxn[0].sender() == Gtxn[2].sender()),
+            Assert(Gtxn[0].sender() == Gtxn[3].sender()),
+
+            # payment to creator, handle creator fees.
+            Assert(Gtxn[1].type_enum() == TxnType.Payment),
+            Assert(Gtxn[1].receiver() == Txn.application_args[self.ASAConfiguration.creator_address]),
+            Assert(Gtxn[1].amount() == Txn.application_args[self.ASAConfiguration.creator_fee]),
+
+            # payment to seller, official sale.
+            Assert(Gtxn[2].type_enum() == TxnType.Payment),
+            Assert(Gtxn[2].receiver() == Txn.accounts[1]),
+            Assert(Gtxn[2].amount() == asa_sell_offer.value()),
+
+            # payment to tokility, handle platform fees.
+            Assert(Gtxn[3].type_enum() == TxnType.Payment),
+            Assert(Gtxn[3].receiver() == tokility_fee_address),
+            Assert(Gtxn[3].amount() == Txn.application_args[self.ASAConfiguration.tokility_fee]),
+
+            # asset transfer.
+            Assert(Gtxn[4].type_enum() == TxnType.AssetTransfer),
+            Assert(Gtxn[4].xfer_asset() == Txn.assets[0]),
+            Assert(Gtxn[4].asset_receiver() == Gtxn[0].sender()),
+            Assert(Gtxn[4].asset_amount() == Int(1)),
 
             # remove the sell_offer since it has been executed.
             App.localDel(Txn.accounts[1], Itob(Txn.assets[0])),
@@ -213,20 +286,25 @@ class TokilityDEX(TokilityDEXInterface):
         A ASA_OWNER transfers the ASA to a GIFT_ADDRESS for free. The ASA_OWNER only needs to pay
         the asa_owner fee to the ASA_CREATOR.
         This simulates gifting the ASA to a friend instead of selling it through sell offer.
-        Arguments:
-        - app_method_name: str
-        - GIFT_ADDRESS: str - the address which will receive the ASA.
+        1. app_method_name: str
+        [2-9]. config arguments
+        10. GIFT_ADDRESS: str - the address which will receive the ASA.
+
+        Foreign assets:
+        - asa_id - the ID of the asa that the user wants to buy.
 
         Foreign assets:
         - asa_id - the ID of the asa that the user wants to gift.
 
         Atomic Transfer:
-        1. Application call.
-        2. Payment from ASA_OWNER to ASA_CREATOR. (fees are paid to the asa_creator)
+        0. Application call.
+        1. Payment from ASA_OWNER to ASA_CREATOR. (fees for creator).
+        2. Payment from ASA_OWNER to TOKILITY_ADDR. (fees for platform).
         3. Asset transfer from Clawback to GIFT_ADDRESS.
 
         :return:
         """
+        tokility_fee_address = App.globalGet(self.GlobalVariables.tokility_fee_address)
 
         asa_balance = AssetHolding.balance(
             Txn.sender(),
@@ -234,11 +312,10 @@ class TokilityDEX(TokilityDEXInterface):
         )
 
         return Seq([
-            # Valid first transaction.
-            # Checks whether the sender that wants to gift the ASA actually owns that ASA.
             Assert(Txn.assets.length() == Int(1)),
-            Assert(Txn.application_args.length() == Int(2)),
+            Assert(Txn.application_args.length() == Int(self.MIN_NUM_PARAMETERS + 1)),
 
+            # Checks whether the sender that wants to gift the ASA actually owns that ASA.
             asa_balance,
             Assert(asa_balance.hasValue()),
             Assert(
@@ -248,12 +325,20 @@ class TokilityDEX(TokilityDEXInterface):
                 )
             ),
 
-            # Valid second transaction.
-            # The fee conditions are checked in the clawback contract.
+            # payment to creator, handle creator fees.
+            Assert(Gtxn[1].type_enum() == TxnType.Payment),
+            Assert(Gtxn[1].receiver() == Txn.application_args[self.ASAConfiguration.creator_address]),
+            Assert(Gtxn[1].amount() == Txn.application_args[self.ASAConfiguration.creator_fee]),
+
+            # payment to tokility, handle platform fees.
+            Assert(Gtxn[2].type_enum() == TxnType.Payment),
+            Assert(Gtxn[2].receiver() == tokility_fee_address),
+            Assert(Gtxn[2].amount() == Txn.application_args[self.ASAConfiguration.tokility_fee]),
 
             # Valid third transaction
-            Assert(Gtxn[2].asset_receiver() == Txn.application_args[1]),
+            Assert(Gtxn[2].asset_receiver() == Txn.application_args[10]),
             Assert(Txn.assets[0] == Gtxn[2].xfer_asset()),
+            Assert(Gtxn[2].asset_amount() == Int(1)),
 
             self.approve
         ])
@@ -267,7 +352,7 @@ class TokilityDEX(TokilityDEXInterface):
     @property
     def global_schema(self):
         return algosdk.future.transaction.StateSchema(num_uints=0,
-                                                      num_byte_slices=0)
+                                                      num_byte_slices=1)
 
     @property
     def local_schema(self):

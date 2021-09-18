@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import Optional, Dict
-from hashlib import sha256
 from algosdk.encoding import decode_address
 
 
@@ -10,23 +9,29 @@ class ASAInitialOfferingConfiguration(BaseModel):
     - asa_price: int - the price of the ASA in ALGOs.
     """
     asa_price: int
+    tokiliy_fee: int
 
 
 class ASAEconomyConfiguration(BaseModel):
     """
     Defines the configuration which describes the selling process of the ASA between clients i.e 3rd parties.
     - max_sell_price: int - the maximum allowed sell price of the ASA.
-    - profit_fee: int - how much does the owner of the ASA receives from the profit of the asa in microAlgos.
+    - owner_fee: int - how much does the owner of the ASA receives from the profit of the asa in microAlgos.
+    - reselling_allowed: int - whether the reselling on the second hand economy is allowed.
+    - reselling_end_date: int - the timestamp of the last possible buy on the second hand economy.
     """
     max_sell_price: int
     owner_fee: int
+    reselling_allowed: int
+    reselling_end_date: int
+    gifting_allowed: int
 
 
 class ASAConfiguration(BaseModel):
     """
     Defines the properties of the created Algorand Standard Asset. This properties should be used in the Smart Contracts
     """
-    asa_owner_address: str
+    asa_creator_address: str
     unit_name: str
     asset_name: str
     asa_id: Optional[int]
@@ -36,9 +41,55 @@ class ASAConfiguration(BaseModel):
     configuration_ipfs_url: Optional[str]
 
     @property
-    def hashed_configuration(self):
-        return sha256(self.dict().__str__().encode()).digest()
+    def asa_price_bytes(self):
+        return self.initial_offering_configuration.asa_price.to_bytes(8, 'big')
 
     @property
-    def hashed_configuration_hexdigest(self):
-        return sha256(self.dict().__str__().encode()).hexdigest()
+    def tokiliy_fee_bytes(self):
+        return self.initial_offering_configuration.tokiliy_fee.to_bytes(8, 'big')
+
+    @property
+    def max_sell_price_bytes(self):
+        return self.economy_configuration.max_sell_price.to_bytes(8, 'big')
+
+    @property
+    def owner_fee_bytes(self):
+        return self.economy_configuration.owner_fee.to_bytes(8, 'big')
+
+    @property
+    def reselling_allowed_bytes(self):
+        return self.economy_configuration.reselling_allowed.to_bytes(8, 'big')
+
+    @property
+    def reselling_end_date_bytes(self):
+        return self.economy_configuration.reselling_end_date.to_bytes(8, 'big')
+
+    @property
+    def gifting_allowed_bytes(self):
+        return self.economy_configuration.gifting_allowed.to_bytes(8, 'big')
+
+    @property
+    def dash_bytes(self):
+        return bytes('-', 'utf-8')
+
+    @property
+    def asa_creator_address_bytes(self):
+        return decode_address(self.asa_creator_address)
+
+    @property
+    def metadata_hash(self):
+        return self.asa_price_bytes + \
+               self.dash_bytes + \
+               self.tokiliy_fee_bytes + \
+               self.dash_bytes + \
+               self.max_sell_price_bytes + \
+               self.dash_bytes + \
+               self.owner_fee_bytes + \
+               self.dash_bytes + \
+               self.reselling_allowed_bytes + \
+               self.dash_bytes + \
+               self.reselling_end_date_bytes + \
+               self.dash_bytes + \
+               self.gifting_allowed_bytes + \
+               self.dash_bytes + \
+               self.asa_owner_address_bytes
