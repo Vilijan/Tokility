@@ -1,0 +1,564 @@
+{
+  "concert_tickets": [
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 3491048011,
+        "initial_offering_configuration": {
+          "asa_price": 4032197,
+          "tokiliy_fee": 195293
+        },
+        "economy_configuration": {
+          "max_sell_price": 25889220,
+          "owner_fee": 220450,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "Seating",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Amsterdam",
+      "datetime": "30.06.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 486877099,
+        "initial_offering_configuration": {
+          "asa_price": 3118398,
+          "tokiliy_fee": 185979
+        },
+        "economy_configuration": {
+          "max_sell_price": 24433766,
+          "owner_fee": 207680,
+          "reselling_allowed": 0,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 0
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Seating",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Skopje",
+      "datetime": "30.06.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 3657435508,
+        "initial_offering_configuration": {
+          "asa_price": 4523002,
+          "tokiliy_fee": 178065
+        },
+        "economy_configuration": {
+          "max_sell_price": 26110410,
+          "owner_fee": 277834,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "Standing",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Amsterdam",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 552274343,
+        "initial_offering_configuration": {
+          "asa_price": 4801206,
+          "tokiliy_fee": 100929
+        },
+        "economy_configuration": {
+          "max_sell_price": 25089432,
+          "owner_fee": 235498,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Standing",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 902686760,
+        "initial_offering_configuration": {
+          "asa_price": 3826984,
+          "tokiliy_fee": 197672
+        },
+        "economy_configuration": {
+          "max_sell_price": 24463215,
+          "owner_fee": 295637,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 0
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "VIP",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Skopje",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 3080791700,
+        "initial_offering_configuration": {
+          "asa_price": 4064556,
+          "tokiliy_fee": 103316
+        },
+        "economy_configuration": {
+          "max_sell_price": 21951173,
+          "owner_fee": 268799,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Standing",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 2725243578,
+        "initial_offering_configuration": {
+          "asa_price": 3103462,
+          "tokiliy_fee": 150818
+        },
+        "economy_configuration": {
+          "max_sell_price": 26420353,
+          "owner_fee": 203710,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "Seating",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "New York",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 3241794231,
+        "initial_offering_configuration": {
+          "asa_price": 4881950,
+          "tokiliy_fee": 169310
+        },
+        "economy_configuration": {
+          "max_sell_price": 21039114,
+          "owner_fee": 227475,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Standing",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "30.06.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 2190300960,
+        "initial_offering_configuration": {
+          "asa_price": 3036016,
+          "tokiliy_fee": 136827
+        },
+        "economy_configuration": {
+          "max_sell_price": 20945591,
+          "owner_fee": 250752,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "VIP",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Amsterdam",
+      "datetime": "11.12.2021"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 3283648560,
+        "initial_offering_configuration": {
+          "asa_price": 4226897,
+          "tokiliy_fee": 131978
+        },
+        "economy_configuration": {
+          "max_sell_price": 20853964,
+          "owner_fee": 294075,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Standing",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "11.12.2021"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 2103685675,
+        "initial_offering_configuration": {
+          "asa_price": 3933818,
+          "tokiliy_fee": 190697
+        },
+        "economy_configuration": {
+          "max_sell_price": 21631781,
+          "owner_fee": 269015,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "VIP",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Amsterdam",
+      "datetime": "30.06.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 3378340799,
+        "initial_offering_configuration": {
+          "asa_price": 4843053,
+          "tokiliy_fee": 192329
+        },
+        "economy_configuration": {
+          "max_sell_price": 26614677,
+          "owner_fee": 292390,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Seating",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "11.12.2021"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 940682791,
+        "initial_offering_configuration": {
+          "asa_price": 3089573,
+          "tokiliy_fee": 125573
+        },
+        "economy_configuration": {
+          "max_sell_price": 26186197,
+          "owner_fee": 226450,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "Standing",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "New York",
+      "datetime": "30.06.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 1258417650,
+        "initial_offering_configuration": {
+          "asa_price": 3433397,
+          "tokiliy_fee": 165559
+        },
+        "economy_configuration": {
+          "max_sell_price": 21801292,
+          "owner_fee": 249415,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Seating",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "New York",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 1496969684,
+        "initial_offering_configuration": {
+          "asa_price": 3514980,
+          "tokiliy_fee": 151178
+        },
+        "economy_configuration": {
+          "max_sell_price": 29851452,
+          "owner_fee": 249340,
+          "reselling_allowed": 0,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "Seating",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "New York",
+      "datetime": "30.06.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 12695505,
+        "initial_offering_configuration": {
+          "asa_price": 4888725,
+          "tokiliy_fee": 141836
+        },
+        "economy_configuration": {
+          "max_sell_price": 25927516,
+          "owner_fee": 269698,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "VIP",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 2277022947,
+        "initial_offering_configuration": {
+          "asa_price": 3867451,
+          "tokiliy_fee": 177089
+        },
+        "economy_configuration": {
+          "max_sell_price": 21618990,
+          "owner_fee": 282549,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 0
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "Standing",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Amsterdam",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 611165465,
+        "initial_offering_configuration": {
+          "asa_price": 3942610,
+          "tokiliy_fee": 116216
+        },
+        "economy_configuration": {
+          "max_sell_price": 21616351,
+          "owner_fee": 234803,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 0
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "Standing",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "New York",
+      "datetime": "11.12.2021"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+        "unit_name": "TOK",
+        "asset_name": "Foo Fighters",
+        "asa_id": 930425363,
+        "initial_offering_configuration": {
+          "asa_price": 3211541,
+          "tokiliy_fee": 141814
+        },
+        "economy_configuration": {
+          "max_sell_price": 26982148,
+          "owner_fee": 279214,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "Foo Fighters",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip",
+      "type": "VIP",
+      "name": "Foo Fighters - Sonic Highways Tour",
+      "location": "Skopje",
+      "datetime": "25.11.2022"
+    },
+    {
+      "asa_configuration": {
+        "asa_creator_address": "2KVAAQNFN3HGZGQ7WIYWSWMX4TRAKVRKZE4GZOURQPZAXGCYYJVOKAEJ4U",
+        "unit_name": "TOK",
+        "asset_name": "U2",
+        "asa_id": 3317069858,
+        "initial_offering_configuration": {
+          "asa_price": 4334412,
+          "tokiliy_fee": 182104
+        },
+        "economy_configuration": {
+          "max_sell_price": 29586970,
+          "owner_fee": 261992,
+          "reselling_allowed": 1,
+          "reselling_end_date": 1668143794,
+          "gifting_allowed": 1
+        },
+        "asa_metadata": null,
+        "configuration_ipfs_url": null
+      },
+      "business_type": "concert",
+      "issuer": "U2",
+      "ipfs_image": "https://gateway.pinata.cloud/ipfs/QmZdV3kWCAU9B6DvqP8McpdRngk111e1TNGykhttZbtCwe",
+      "type": "VIP",
+      "name": "U2 - The Joshua Tree Tour",
+      "location": "Amsterdam",
+      "datetime": "25.11.2022"
+    }
+  ]
+}
