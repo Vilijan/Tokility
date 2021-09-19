@@ -21,6 +21,23 @@ class ASAService:
 
         self.database = dict()
 
+    @property
+    def clawback_address_bytes(self):
+        tokility_clawback_asc1 = TokilityClawbackASC1(app_id=self.tokility_dex_app_id)
+
+        clawback_asc1_compiled = compileTeal(tokility_clawback_asc1.pyteal_code(),
+                                             mode=Mode.Signature,
+                                             version=4)
+
+        clawback_asc1_compiled_bytes = NetworkInteraction.compile_program(client=self.client,
+                                                                          source_code=clawback_asc1_compiled)
+
+        return clawback_asc1_compiled_bytes
+
+    @property
+    def clawback_address(self):
+        return algosdk.logic.address(self.clawback_address_bytes)
+
     def create_asa(self, asa_configuration: ASAConfiguration):
         """
         Creates an ASA from the given ASAConfiguration.
@@ -33,10 +50,10 @@ class ASAService:
             unit_name=asa_configuration.unit_name,
             asset_name=asa_configuration.asset_name,
             note=None,
-            manager_address=self.creator_addr,
-            reserve_address=self.creator_addr,
-            freeze_address=self.creator_addr,
-            clawback_address=self.creator_addr,
+            manager_address="",
+            reserve_address="",
+            freeze_address="",
+            clawback_address=self.clawback_address,
             url=asa_configuration.configuration_ipfs_url,
             metadata_hash=sha256(asa_configuration.metadata_hash).digest(),
             default_frozen=True,
@@ -52,51 +69,6 @@ class ASAService:
         self.database[asa_id]["configuration"] = asa_configuration.dict()
 
         return asa_id, tx_id
-
-    def create_clawback(self, asa_configuration: ASAConfiguration):
-        """
-        Creates clawback for the specified asa configuration.
-        :param asa_configuration:
-        :return: (str, bytes) - clawback address and clawback bytes compiled.
-        """
-        tokility_clawback_asc1 = TokilityClawbackASC1(configuration=asa_configuration,
-                                                      app_id=self.tokility_dex_app_id)
-
-        clawback_asc1_compiled = compileTeal(tokility_clawback_asc1.pyteal_code(),
-                                             mode=Mode.Signature,
-                                             version=4)
-
-        clawback_asc1_compiled_bytes = NetworkInteraction.compile_program(client=self.client,
-                                                                          source_code=clawback_asc1_compiled)
-
-        clawback_address = algosdk.logic.address(clawback_asc1_compiled_bytes)
-
-        self.database[asa_configuration.asa_id]["clawback_address"] = clawback_address
-        self.database[asa_configuration.asa_id]["clawback_bytes"] = clawback_asc1_compiled_bytes
-
-        return clawback_address, clawback_asc1_compiled_bytes
-
-    def update_asa_management(self,
-                              asa_id: int,
-                              manager_address: str,
-                              reserve_address: str,
-                              freeze_address: str,
-                              clawback_address: str):
-        txn = ASATransactionRepository.change_asa_management(
-            client=self.client,
-            current_manager_pk=self.creator_pk,
-            asa_id=asa_id,
-            manager_address=manager_address,
-            reserve_address=reserve_address,
-            freeze_address=freeze_address,
-            strict_empty_address_check=False,
-            clawback_address=clawback_address,
-            sign_transaction=True,
-        )
-
-        tx_id = NetworkInteraction.submit_transaction(self.client, transaction=txn)
-
-        return tx_id
 
     def asa_opt_in(self, asa_id, user_pk):
         txn = ASATransactionRepository.asa_opt_in(client=self.client,

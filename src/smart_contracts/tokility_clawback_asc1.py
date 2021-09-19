@@ -6,9 +6,7 @@ from src.smart_contracts.tokility_dex_asc1 import TokilityDEX
 class TokilityClawbackASC1:
 
     def __init__(self,
-                 configuration: ASAConfiguration,
                  app_id: int):
-        self.configuration = configuration
         self.app_id = app_id
 
     def initial_buy(self):

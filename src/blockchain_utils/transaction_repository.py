@@ -140,7 +140,8 @@ class ASATransactionRepository:
                                       url=url,
                                       decimals=decimals,
                                       note=note,
-                                      metadata_hash=metadata_hash)
+                                      metadata_hash=metadata_hash,
+                                      strict_empty_address_check=False)
 
         if sign_transaction:
             txn = txn.sign(private_key=creator_private_key)
