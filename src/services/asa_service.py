@@ -37,7 +37,7 @@ class ASAService:
             reserve_address=self.creator_addr,
             freeze_address=self.creator_addr,
             clawback_address=self.creator_addr,
-            url=None,
+            url=asa_configuration.configuration_ipfs_url,
             metadata_hash=sha256(asa_configuration.metadata_hash).digest(),
             default_frozen=True,
             sign_transaction=True,

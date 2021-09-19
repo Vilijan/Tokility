@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from src.models.asset_configurations import ASAConfiguration
 from abc import ABC
+from typing import Optional
 
 
 class Ticket(ABC, BaseModel):
@@ -14,6 +15,7 @@ class Ticket(ABC, BaseModel):
     asa_configuration: ASAConfiguration
     business_type: str
     issuer: str
+    ipfs_image: Optional[str]
 
 
 class ConcertTicket(Ticket):
