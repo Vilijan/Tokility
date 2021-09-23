@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional, Dict
 from algosdk.encoding import decode_address
+from datetime import datetime
+import os
 
 
 class ASAInitialOfferingConfiguration(BaseModel):
@@ -25,6 +27,32 @@ class ASAEconomyConfiguration(BaseModel):
     reselling_allowed: int
     reselling_end_date: int
     gifting_allowed: int
+
+    def show_info_row1(self):
+        if self.reselling_allowed == 1:
+            if self.gifting_allowed == 1:
+                return f"Reselling and gifting allowed"
+            else:
+                return f"Reselling allowed - Gifting not allowed"
+        elif self.gifting_allowed == 1:
+            return "Gifting allowed - Reselling not allowed"
+        else:
+            return "Reselling and gifting not allowed"
+
+    def show_info_row2(self):
+        if self.reselling_allowed == 1:
+            return f"Max resell price: {self.max_sell_price} - Owner fee: {self.owner_fee}"
+        else:
+            return ""
+
+    def show_info_row3(self):
+        if self.reselling_allowed == 1:
+            return f"Resell end date: {self.unix_to_date(self.reselling_end_date)}"
+        else:
+            return ""
+
+    def unix_to_date(self, unix_timestamp) -> str:
+        return datetime.utcfromtimestamp(unix_timestamp).strftime('%Y-%m-%d')
 
 
 class ASAConfiguration(BaseModel):

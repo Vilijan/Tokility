@@ -1,0 +1,27 @@
+{
+  "Live Nation":
+    {
+      "asa_creator_address": "J3SI4E2LEKRIMV6QQQM6XHPQ55IX7LRXEXHAHS2A2STLFLHD3I6PNF3NSI",
+      "asa_type": "concert"
+    },
+  "Jamie Oliver":
+    {
+      "asa_creator_address": "SCRN6XEFKGCMFY6CQOIEH2K5OKYEAIU5BBGMTO5PZG7XM5YIJRPBLHFAAY",
+      "asa_type": "restaurant"
+    },
+  "Pshycologist Appointment":
+    {
+      "asa_creator_address": "SCRN6XEFKGCMFY6CQOIEH2K5OKYEAIU5BBGMTO5PZG7XM5YIJRPBLHFAAY",
+      "asa_type": "appointment"
+    },
+  "Cinema Pathe":
+    {
+      "asa_creator_address": "J3SI4E2LEKRIMV6QQQM6XHPQ55IX7LRXEXHAHS2A2STLFLHD3I6PNF3NSI",
+      "asa_type": "cinema"
+    },
+  "Algorand Conference":
+    {
+      "asa_creator_address": "J3SI4E2LEKRIMV6QQQM6XHPQ55IX7LRXEXHAHS2A2STLFLHD3I6PNF3NSI",
+      "asa_type": "conference"
+    }
+}

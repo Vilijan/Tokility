@@ -21,7 +21,7 @@ def load_json(file_name):
 
 
 def micro_algo(algo):
-    return int(algo * 1000000)
+    return int(algo*100)
 
 
 def generate_id():
@@ -85,6 +85,46 @@ def create_random_cinema_ticket(asa_configuration: ASAConfiguration,
                         row=random.randint(1, 30))
 
 
+def create_random_conference_ticket(asa_configuration: ASAConfiguration,
+                                    issuer: str,
+                                    name: str,
+                                    ipfs_image: str):
+    return ConferenceTicket(asa_configuration=asa_configuration,
+                            business_type=Ticket.BusinessType.conference,
+                            issuer=issuer,
+                            ipfs_image=ipfs_image,
+                            name=name,
+                            type=random.choice(["VIP", "Regular"]),
+                            duration=random.choice([1, 2, 3]),
+                            datetime=random.choice(["11.12.2021", "25.11.2022", "30.06.2022"]))
+
+
+def create_random_appointment_ticket(asa_configuration: ASAConfiguration,
+                                    issuer: str,
+                                    name: str,
+                                    ipfs_image: str):
+    return AppointmentTicket(asa_configuration=asa_configuration,
+                             business_type=Ticket.BusinessType.appointment,
+                             issuer=issuer,
+                             ipfs_image=ipfs_image,
+                             doctor_name=name,
+                             duration=random.choice([1, 2]),
+                             datetime=random.choice(["11.12.2021", "25.11.2022", "30.06.2022"]))
+
+
+def create_random_restaurant_ticket(asa_configuration: ASAConfiguration,
+                                    issuer: str,
+                                    name: str,
+                                    ipfs_image: str):
+    return RestaurantTicket(asa_configuration=asa_configuration,
+                            business_type=Ticket.BusinessType.restaurant,
+                            issuer=issuer,
+                            ipfs_image=ipfs_image,
+                            name=name,
+                            type=random.choice(["Food", "Drinks only"]),
+                            datetime=random.choice(["11.12.2021", "25.11.2022", "30.06.2022"]))
+
+
 def generate_concert_json_list():
     tickets_dummy = dict()
     tickets_dummy['concert_tickets'] = []
@@ -116,7 +156,7 @@ def generate_concert_json_list():
 
 def generate_movie_json_list():
     tickets_dummy = dict()
-    tickets_dummy['concert_tickets'] = []
+    tickets_dummy['cinema_tickets'] = []
 
     for i in range(10):
         primal_fear_config = create_random_asa_configuration(creator_address=FOO_FIGHTERS_ADDRESS,
@@ -137,9 +177,72 @@ def generate_movie_json_list():
                                                               ipfs_image="https://gateway.pinata.cloud/ipfs/Qmb77e3kRjUFeMACs6twNKjgu2qdK7Xi4nL3aiTEonruAy",
                                                               movie_name="Gone Girl")
 
-        tickets_dummy['concert_tickets'].append(primal_fear_config_ticket.dict())
-        tickets_dummy['concert_tickets'].append(gone_girl_config_ticket.dict())
+        tickets_dummy['cinema_tickets'].append(primal_fear_config_ticket.dict())
+        tickets_dummy['cinema_tickets'].append(gone_girl_config_ticket.dict())
 
-    save_json('movie_tickets_dummy.json', tickets_dummy)
+    save_json('cinema_tickets_dummy.json', tickets_dummy)
 
 
+def generate_conference_json_list():
+    tickets_dummy = dict()
+    tickets_dummy['conference_tickets'] = []
+
+    for i in range(10):
+        algorand_conference_config = create_random_asa_configuration(creator_address=FOO_FIGHTERS_ADDRESS,
+                                                              asset_name="Foo Fighters")
+        algorand_conference_config.asa_id = generate_id()
+
+        algorand_conference_ticket = create_random_conference_ticket(algorand_conference_config,
+                                                           issuer="Algorand",
+                                                           name="Algorand Conference",
+                                                           ipfs_image="https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip")
+
+        tickets_dummy['conference_tickets'].append(algorand_conference_ticket.dict())
+
+    save_json('conference_tickets_dummy.json', tickets_dummy)
+
+
+def generate_appointment_json_list():
+    tickets_dummy = dict()
+    tickets_dummy['appointment_tickets'] = []
+
+    for i in range(10):
+        appointment_config = create_random_asa_configuration(creator_address=FOO_FIGHTERS_ADDRESS,
+                                                              asset_name="Psychologist Appointment")
+        appointment_config.asa_id = generate_id()
+
+        appointment_ticket = create_random_appointment_ticket(appointment_config,
+                                                           issuer="Medical Center",
+                                                           name="Psychologist Appointment - Dr.Ana",
+                                                           ipfs_image="https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip")
+
+        tickets_dummy['appointment_tickets'].append(appointment_ticket.dict())
+
+    save_json('appointment_tickets_dummy.json', tickets_dummy)
+
+
+def generate_restaurant_json_list():
+    tickets_dummy = dict()
+    tickets_dummy['restaurant_tickets'] = []
+
+    for i in range(10):
+        restaurant_config = create_random_asa_configuration(creator_address=FOO_FIGHTERS_ADDRESS,
+                                                              asset_name="Jamie Oliver")
+        restaurant_config.asa_id = generate_id()
+
+        restaurant_ticket = create_random_restaurant_ticket(restaurant_config,
+                                                           issuer="Jamie Oliver Inc",
+                                                           name="Jamie Oliver",
+                                                           ipfs_image="https://gateway.pinata.cloud/ipfs/QmaXe7kVV2dAYTovruC8aBoReWC6peykvPS9FdYGqu4Qip")
+
+        tickets_dummy['restaurant_tickets'].append(restaurant_ticket.dict())
+
+    save_json('restaurant_tickets_dummy.json', tickets_dummy)
+
+
+if __name__ == '__main__':
+    generate_concert_json_list()
+    generate_restaurant_json_list()
+    generate_appointment_json_list()
+    generate_conference_json_list()
+    generate_movie_json_list()

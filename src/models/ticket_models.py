@@ -24,6 +24,8 @@ class ConcertTicket(Ticket):
     location: str
     datetime: str
 
+    def show_info(self):
+        return f"{self.location}, {self.type}"
 
 class CinemaTicket(Ticket):
     type: str
@@ -32,6 +34,9 @@ class CinemaTicket(Ticket):
     seat: int
     row: int
 
+    def show_info(self):
+        return f"{self.type}, row: {self.row}, seat: {self.seat}"
+
 
 class ConferenceTicket(Ticket):
     type: str
@@ -39,14 +44,27 @@ class ConferenceTicket(Ticket):
     duration: str
     datetime: str
 
+    def show_info(self):
+        if self.duration == "1":
+            unit = "day"
+        else:
+            unit = 'days'
+        return f"{self.type}, {self.duration} {unit}"
+
 
 class AppointmentTicket(Ticket):
     duration: int
     datetime: str
     doctor_name: str
 
+    def show_info(self):
+        return f"{self.duration}h"
+
 
 class RestaurantTicket(Ticket):
     type: str
     datetime: str
     name: str
+
+    def show_info(self):
+        return f"{self.type}"
