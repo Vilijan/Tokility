@@ -196,8 +196,9 @@ if 'sale_offers' not in st.session_state:
     st.session_state.sale_offers = load_offers()
 
 image = Image.open("tokility-logo-gray.png")
+st.sidebar.header(f"Marketplace")
 st.sidebar.image(image, width=300)
-st.sidebar.subheader(f"ASC1: {APP_ID}")
+st.sidebar.header(f"ASC1: {APP_ID}")
 
 ui_type = st.sidebar.selectbox("Market type", ("Buy Tokility tokens", "Sell Tokility tokens"))
 
@@ -254,8 +255,6 @@ def buy_ui():
             else:
                 st.error("Gifting of the ticket is not allowed")
 
-    st.title(f"Marketplace")
-
     for idx, sale_offer in enumerate(sale_offers):
         # TODO: This should be improved, currently is hard cast
         sale_offer.ticket = ConcertTicket(**sale_offer.ticket.dict())
@@ -263,7 +262,12 @@ def buy_ui():
         # show_ticket_info(ticket=concert_ticket)
         show_sale_offer(sale_offer=sale_offer)
 
-        if st.button("Buy token", key=str(idx)):
+        col1, col2, col3, col4, col5 = st.columns(5)
+        st.write("_______")
+        st.write("")
+        button_clicked = col3.button("⬆ ️Buy token", key=str(idx))
+
+        if button_clicked:
             credentials = [cred for cred in BUYERS if cred[1] == buyer_address][0]
             buy_ticket(buyer_private_key=credentials[0],
                        buyer_address=credentials[1],

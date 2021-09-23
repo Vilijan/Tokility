@@ -87,7 +87,6 @@ def show_seller_config(seller_selected: str, asa_type: str) -> None:
 
 def show_tickets(asa_type: str) -> None:
     # seller tickets
-    # all_transactions = read_json("demo_transactions.json")["executed_transactions"]
     if asa_type == 'concert':
         seller_tokens = load_concert_tickets()
 

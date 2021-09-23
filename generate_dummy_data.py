@@ -30,10 +30,10 @@ def generate_id():
 
 def create_random_asa_configuration(creator_address: str,
                                     asset_name: str,
-                                    price_range: (float, float) = (3, 5.0),
-                                    tokility_fee_range: (float, float) = (0.1, 0.2),
-                                    max_sell_price_range: (float, float) = (20, 30.0),
-                                    owner_fee_range: (float, float) = (0.2, 0.3),
+                                    price_range: (float, float) = (30.0, 200.0),
+                                    tokility_fee_range: (float, float) = (1.0, 5.0),
+                                    max_sell_price_range: (float, float) = (35.0, 300.0),
+                                    owner_fee_range: (float, float) = (5.0, 40.0),
                                     reselling_end_date: int = 1668143794):
     reselling_allowed = 1 if random.randint(0, 10) > 3 else 0
     gifting_allowed = 1 if random.randint(0, 10) > 2 else 0
