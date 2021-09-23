@@ -453,24 +453,20 @@ def validate_input(asa_price: int,
     return True
 
 
-def show_ticket_info(ticket):
-    if ticket.business_type == 'appointment':
-        name = ticket.doctor_name
-    else:
-        name = ticket.name
+def show_ticket_info(ticket: Ticket):
     html_format = f"""
         <div class="card">
             <header>
                 <time datetime="2018-05-15T19:00">{ticket.datetime}</time>
-                <div class="id">ID: {ticket.asa_configuration.asa_id}</div>
-        <div class="sponsor">{ticket.asa_configuration.initial_offering_configuration.asa_price} algos</div>
+                <div class="id">{round(float(ticket.asa_configuration.initial_offering_configuration.asa_price / 1000000), 2)} algos</div>
+        <div class="sponsor">ID: {ticket.asa_configuration.asa_id}</div>
             </header>
         <div class="announcement">
-            <h1>{name}</h1>
-            <h3>{ticket.asa_configuration.economy_configuration.show_info_row1()}</h3>
+            <h1>{ticket.ticket_name}</h1>
+            <h3>{ticket.ticket_info}</h3>
+            <h4>{ticket.asa_configuration.economy_configuration.show_info_row1()}</h4>
             <h4>{ticket.asa_configuration.economy_configuration.show_info_row2()}</h4>
             <h4>{ticket.asa_configuration.economy_configuration.show_info_row3()}</h4>
-            <h4>{ticket.show_info()}</h4>
         </div>    
         </div>
     """

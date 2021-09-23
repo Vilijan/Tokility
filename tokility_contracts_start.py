@@ -9,9 +9,9 @@ def algo(micro_algo) -> int:
     return int(micro_algo * 1000000)
 
 
-acc_pk, acc_addr, _ = get_account_credentials(7)
-buyer_pk, buyer_add, _ = get_account_credentials(8)
-buyer_2_pk, buyer_2_add, _ = get_account_credentials(9)
+acc_pk, acc_addr, _ = get_account_credentials(1)
+buyer_pk, buyer_add, _ = get_account_credentials(2)
+buyer_2_pk, buyer_2_add, _ = get_account_credentials(3)
 
 client = get_client()
 
@@ -46,18 +46,9 @@ asa_1_config = ASAConfiguration(asa_creator_address=acc_addr,
 asa_1_id, _ = asa_service.create_asa(asa_configuration=asa_1_config)
 asa_1_config.asa_id = asa_1_id
 
-# Create the stateless clawback contract.
-asa_1_clawback_addr, asa_1_clawback_bytes = asa_service.create_clawback(asa_configuration=asa_1_config)
-# Fund clawback
-tokility_dex_service.fund_address(receiver_address=asa_1_clawback_addr)
+tokility_dex_service.fund_address(receiver_address=asa_service.clawback_address)
 
 # Set it as a clawback to the NFT.
-
-asa_service.update_asa_management(asa_id=asa_1_config.asa_id,
-                                  manager_address="",
-                                  reserve_address="",
-                                  freeze_address="",
-                                  clawback_address=asa_1_clawback_addr)
 
 print(f'NFT management changed')
 
@@ -74,8 +65,8 @@ asa_service.asa_opt_in(asa_id=asa_1_config.asa_id,
 tokility_dex_service.initial_buy(buyer_addr=buyer_add,
                                  buyer_pk=buyer_pk,
                                  asa_configuration=asa_1_config,
-                                 asa_clawback_addr=asa_1_clawback_addr,
-                                 asa_clawback_bytes=asa_1_clawback_bytes)
+                                 asa_clawback_addr=asa_service.clawback_address,
+                                 asa_clawback_bytes=asa_service.clawback_address_bytes)
 
 asa_service.asa_opt_in(asa_id=asa_1_config.asa_id,
                        user_pk=buyer_2_pk)
@@ -84,8 +75,8 @@ asa_service.asa_opt_in(asa_id=asa_1_config.asa_id,
 #                               asa_owner_pk=buyer_pk,
 #                               asa_receiver_addr=buyer_2_add,
 #                               asa_configuration=asa_1_config,
-#                               asa_clawback_addr=asa_1_clawback_addr,
-#                               asa_clawback_bytes=asa_1_clawback_bytes)
+#                               asa_clawback_addr=asa_service.clawback_address,
+#                               asa_clawback_bytes=asa_service.clawback_address_bytes)
 
 # Sell ASA
 
@@ -106,8 +97,8 @@ tokility_dex_service.buy_from_seller(buyer_addr=buyer_2_add,
                                      seller_addr=buyer_add,
                                      price=1000000,
                                      asa_configuration=asa_1_config,
-                                     asa_clawback_addr=asa_1_clawback_addr,
-                                     asa_clawback_bytes=asa_1_clawback_bytes)
+                                     asa_clawback_addr=asa_service.clawback_address,
+                                     asa_clawback_bytes=asa_service.clawback_address_bytes)
 
 tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
 
@@ -127,15 +118,6 @@ asa_2_config = ASAConfiguration(asa_creator_address=acc_addr,
 asa_2_id, _ = asa_service.create_asa(asa_configuration=asa_2_config)
 asa_2_config.asa_id = asa_2_id
 
-asa_2_clawback_addr, asa_2_clawback_bytes = asa_service.create_clawback(asa_configuration=asa_2_config)
-tokility_dex_service.fund_address(receiver_address=asa_2_clawback_addr)
-
-asa_service.update_asa_management(asa_id=asa_2_config.asa_id,
-                                  manager_address="",
-                                  reserve_address="",
-                                  freeze_address="",
-                                  clawback_address=asa_2_clawback_addr)
-
 tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
 asa_service.asa_opt_in(asa_id=asa_2_config.asa_id,
                        user_pk=buyer_2_pk)
@@ -143,8 +125,8 @@ asa_service.asa_opt_in(asa_id=asa_2_config.asa_id,
 tokility_dex_service.initial_buy(buyer_addr=buyer_2_add,
                                  buyer_pk=buyer_2_pk,
                                  asa_configuration=asa_2_config,
-                                 asa_clawback_addr=asa_2_clawback_addr,
-                                 asa_clawback_bytes=asa_2_clawback_bytes)
+                                 asa_clawback_addr=asa_service.clawback_address,
+                                 asa_clawback_bytes=asa_service.clawback_address_bytes)
 
 tokility_dex_service.make_sell_offer(seller_pk=buyer_2_pk,
                                      sell_price=991999,

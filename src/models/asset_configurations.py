@@ -41,7 +41,8 @@ class ASAEconomyConfiguration(BaseModel):
 
     def show_info_row2(self):
         if self.reselling_allowed == 1:
-            return f"Max resell price: {self.max_sell_price} - Owner fee: {self.owner_fee}"
+            return f"Max resell price: {round(float(self.max_sell_price / 1000000), 2)} - " \
+                   f"Owner fee: {round(float(self.owner_fee / 1000000), 2)}"
         else:
             return ""
 

@@ -5,16 +5,21 @@ from src.models.asset_sale_offer import SaleOffer
 import base64
 import time
 import requests
+from typing import Set, Optional
 
 
 class SecondHandOfferingsService:
 
     @staticmethod
-    def available_offers(app_id: int) -> List[SaleOffer]:
+    def available_offers(app_id: int, sellers_of_interest: Optional[Set[str]] = None) -> List[SaleOffer]:
         indexer = get_indexer()
         acc_app_info = indexer.accounts(application_id=app_id)
         sale_offers: List[SaleOffer] = []
         for account in acc_app_info['accounts']:
+            if sellers_of_interest is not None:
+                if account['address'] not in sellers_of_interest:
+                    continue
+
             for local_state in account['apps-local-state']:
                 if local_state['id'] == app_id:
                     if 'key-value' in local_state:
@@ -26,9 +31,11 @@ class SecondHandOfferingsService:
                             time.sleep(1.5)
                             asset_info = indexer.asset_info(asset_id=asa_id)
                             r = requests.get(asset_info['asset']['params']['url'])
-
+                            ticket = Ticket(**r.json())
+                            ticket.asa_configuration.asa_id = asa_id
                             sale_offers.append(SaleOffer(sale_type="second_hand",
-                                                         ticket=Ticket(**r.json()),
+                                                         ticket=ticket,
+                                                         asa_id=asa_id,
                                                          second_hand_seller_address=seller_address,
                                                          second_hand_amount=asa_price))
 
@@ -51,7 +58,10 @@ class InitialBuyOfferingsService:
         for created_asset in assets['account']['created-assets']:
             if created_asset['index'] in available_for_sell_assets:
                 r = requests.get(created_asset['params']['url'])
+                ticket = Ticket(**r.json())
+                ticket.asa_configuration.asa_id = created_asset['index']
                 sale_offers.append(SaleOffer(sale_type="initial_buy",
-                                             ticket=Ticket(**r.json())))
+                                             ticket=ticket,
+                                             asa_id=created_asset['index']))
 
         return sale_offers

@@ -6,6 +6,7 @@ from typing import Optional
 class SaleOffer(BaseModel):
     sale_type: str  # ["initial_buy", "second_hand"]
     ticket: Ticket
+    asa_id: int
     second_hand_seller_address: Optional[str]
     second_hand_amount: Optional[int]
 

@@ -12,59 +12,93 @@ class Ticket(ABC, BaseModel):
         restaurant = "restaurant"
         appointment = "appointment"
 
+    class Config:
+        extra = "allow"
+        arbitrary_types_allowed = True
+
     asa_configuration: ASAConfiguration
     business_type: str
     issuer: str
     ipfs_image: Optional[str]
+    datetime: Optional[str]
+
+    @property
+    def ticket_info(self):
+        return NotImplemented
+
+    @property
+    def ticket_name(self):
+        return NotImplemented
 
 
 class ConcertTicket(Ticket):
     type: str
     name: str
     location: str
-    datetime: str
 
-    def show_info(self):
+    @property
+    def ticket_info(self):
         return f"{self.location}, {self.type}"
+
+    @property
+    def ticket_name(self):
+        return self.name
+
 
 class CinemaTicket(Ticket):
     type: str
     name: str
-    datetime: str
     seat: int
     row: int
 
-    def show_info(self):
+    @property
+    def ticket_info(self):
         return f"{self.type}, row: {self.row}, seat: {self.seat}"
+
+    @property
+    def ticket_name(self):
+        return self.name
 
 
 class ConferenceTicket(Ticket):
     type: str
     name: str
     duration: str
-    datetime: str
 
-    def show_info(self):
+    @property
+    def ticket_info(self):
         if self.duration == "1":
             unit = "day"
         else:
             unit = 'days'
         return f"{self.type}, {self.duration} {unit}"
 
+    @property
+    def ticket_name(self):
+        return self.name
+
 
 class AppointmentTicket(Ticket):
     duration: int
-    datetime: str
     doctor_name: str
 
-    def show_info(self):
+    @property
+    def ticket_info(self):
         return f"{self.duration}h"
+
+    @property
+    def ticket_name(self):
+        return self.doctor_name
 
 
 class RestaurantTicket(Ticket):
     type: str
-    datetime: str
     name: str
 
-    def show_info(self):
+    @property
+    def ticket_info(self):
         return f"{self.type}"
+
+    @property
+    def ticket_name(self):
+        return self.name
