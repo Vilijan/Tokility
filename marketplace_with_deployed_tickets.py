@@ -9,14 +9,14 @@ import requests
 import base64
 import time
 from src.models.asset_sale_offer import SaleOffer
-from src.services.sale_offer_service import InitialBuyOfferingsService
+from src.services.sale_offer_service import InitialBuyOfferingsService, SecondHandOfferingsService
 
 acc_pk, acc_addr, _ = get_account_credentials(1)
 buyer_pk, buyer_add, _ = get_account_credentials(2)
 buyer_2_pk, buyer_2_add, _ = get_account_credentials(3)
 concert_company_pk, concert_company_addr, _ = get_account_with_name("concert_company")
 client = get_client()
-APP_ID = 27661966
+APP_ID = 28471564
 
 
 def algo(micro_algo) -> int:
@@ -29,6 +29,8 @@ tokility_dex_service = TokilityDEXService(app_creator_addr=acc_addr,
                                           client=client,
                                           app_id=APP_ID)
 
+print(f'APP_ID: {tokility_dex_service.app_id}')
+
 concert_company_asa_service = ASAService(creator_addr=concert_company_addr,
                                          creator_pk=concert_company_pk,
                                          tokility_dex_app_id=tokility_dex_service.app_id,
@@ -36,67 +38,87 @@ concert_company_asa_service = ASAService(creator_addr=concert_company_addr,
 
 CLAWBACK_ADDRESS = concert_company_asa_service.clawback_address
 CLAWBACK_ADDRESS_BYTES = concert_company_asa_service.clawback_address_bytes
+print(f'CLAWBACK_ADDRESS: {CLAWBACK_ADDRESS}')
 
-initial_buy_sale_offers = InitialBuyOfferingsService.available_sell_offers(creator_address=concert_company_addr)
+# Sale offers
+initial_offers = InitialBuyOfferingsService.available_sell_offers(creator_address=concert_company_addr)
+time.sleep(3)
+second_hand_offers = SecondHandOfferingsService.available_offers(app_id=APP_ID)
 
-for i, sale_offer in enumerate(initial_buy_sale_offers):
-    print(f"{i}. asa_id: {sale_offer.ticket.asa_configuration.asa_id} "
-          f"selling_allowed: {sale_offer.ticket.asa_configuration.economy_configuration.reselling_allowed}")
+sale_offers: List[SaleOffer] = []
+sale_offers.extend(initial_offers)
+sale_offers.extend(second_hand_offers)
+
+for i, curr_sale_offer in enumerate(sale_offers):
+    print(f"{i}. asa_id: {curr_sale_offer.ticket.asa_configuration.asa_id}"
+          f" type:{curr_sale_offer.sale_type}"
+          f" reselling_allowed: {curr_sale_offer.ticket.asa_configuration.economy_configuration.reselling_allowed}"
+          f" seller: {curr_sale_offer.seller_address}"
+          f" total_amount: {curr_sale_offer.amount / 1000000}")
 
 # Fund the clawback
-# tokility_dex_service.fund_address(receiver_address=concert_company_asa_service.clawback_address)
+tokility_dex_service.fund_address(receiver_address=concert_company_asa_service.clawback_address)
 print('Clawback funded')
 
 # Opt-in buyers to the app.
-# tokility_dex_service.app_opt_in(user_pk=buyer_pk)
-# tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
-
-# Ticket 1
-ticket_1_config = initial_buy_sale_offers[0].ticket.asa_configuration
-concert_company_asa_service.asa_opt_in(asa_id=ticket_1_config.asa_id,
-                                       user_pk=buyer_pk)
-
-tokility_dex_service.initial_buy(buyer_addr=buyer_add,
-                                 buyer_pk=buyer_pk,
-                                 asa_configuration=ticket_1_config,
-                                 asa_clawback_addr=CLAWBACK_ADDRESS,
-                                 asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
-
-tokility_dex_service.make_sell_offer(seller_pk=buyer_pk,
-                                     sell_price=2200000,
-                                     asa_configuration=ticket_1_config)
-
-# Ticket 2
-ticket_2_config = initial_buy_sale_offers[2].ticket.asa_configuration
-concert_company_asa_service.asa_opt_in(asa_id=ticket_2_config.asa_id,
-                                       user_pk=buyer_2_pk)
-
-tokility_dex_service.initial_buy(buyer_addr=buyer_2_add,
-                                 buyer_pk=buyer_2_pk,
-                                 asa_configuration=ticket_2_config,
-                                 asa_clawback_addr=CLAWBACK_ADDRESS,
-                                 asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
-
-tokility_dex_service.make_sell_offer(seller_pk=buyer_2_pk,
-                                     sell_price=1100000,
-                                     asa_configuration=ticket_2_config)
+tokility_dex_service.app_opt_in(user_pk=buyer_pk)
+tokility_dex_service.app_opt_in(user_pk=buyer_2_pk)
 
 
 # Buy ticket N
-def buy_and_sell_ticket(buyer_private_key, buyer_address, asa_configuration, sell_price):
+def buy_ticket_first_sale(buyer_private_key, buyer_address, asa_configuration):
     concert_company_asa_service.asa_opt_in(asa_id=asa_configuration.asa_id,
                                            user_pk=buyer_private_key)
 
-    tokility_dex_service.initial_buy(buyer_addr=buyer_address,
-                                     buyer_pk=buyer_private_key,
-                                     asa_configuration=asa_configuration,
-                                     asa_clawback_addr=CLAWBACK_ADDRESS,
-                                     asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
+    tx_id = tokility_dex_service.initial_buy(buyer_addr=buyer_address,
+                                             buyer_pk=buyer_private_key,
+                                             asa_configuration=asa_configuration,
+                                             asa_clawback_addr=CLAWBACK_ADDRESS,
+                                             asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
+    print(f'initial buy completed in: {tx_id}')
 
-    tokility_dex_service.make_sell_offer(seller_pk=buyer_private_key,
-                                         sell_price=sell_price,
-                                         asa_configuration=asa_configuration)
 
+def buy_ticket_second_hand(buyer_private_key: str,
+                           buyer_address: str,
+                           sale_offer: SaleOffer):
+    concert_company_asa_service.asa_opt_in(asa_id=sale_offer.ticket.asa_configuration.asa_id,
+                                           user_pk=buyer_private_key)
+    print(f'seller: {sale_offer.seller_address}')
+    print(f'amount: {sale_offer.second_hand_amount}')
+    print(f'asa_id: {sale_offer.ticket.asa_configuration.asa_id}')
+    tx_id = tokility_dex_service.buy_from_seller(buyer_addr=buyer_address,
+                                                 buyer_pk=buyer_private_key,
+                                                 seller_addr=sale_offer.seller_address,
+                                                 price=sale_offer.second_hand_amount,
+                                                 asa_configuration=sale_offer.ticket.asa_configuration,
+                                                 asa_clawback_addr=CLAWBACK_ADDRESS,
+                                                 asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
+
+    print(f'Second hand buy completed in: {tx_id}')
+
+
+# Test initial_buy
+config = sale_offers[2].ticket.asa_configuration
+buy_ticket_first_sale(buyer_private_key=buyer_pk,
+                      buyer_address=buyer_add,
+                      asa_configuration=config)
+
+# Test make_sell_offer
+
+tokility_dex_service.make_sell_offer(seller_pk=buyer_pk,
+                                     sell_price=5000000,
+                                     asa_configuration=config)
+
+# Test stop_sell_offer
+
+tokility_dex_service.stop_selling(seller_pk=buyer_pk,
+                                  asa_configuration=sale_offers[9].ticket.asa_configuration)
+
+# Test second_hand_buy
+
+buy_ticket_second_hand(buyer_private_key=buyer_2_pk,
+                       buyer_address=buyer_2_add,
+                       sale_offer=sale_offers[9])
 
 # buy_and_sell_ticket(buyer_private_key=buyer_2_pk,
 #                     buyer_address=buyer_2_add,

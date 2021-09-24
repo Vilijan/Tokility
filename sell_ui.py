@@ -27,7 +27,7 @@ COLORS = [
     ("#611030", "#349a4a"),
 ]
 
-APP_ID = 27661966
+APP_ID = 28471564
 
 
 def algos(micro_algos) -> float:
@@ -165,6 +165,7 @@ def show_ticket_info(ticket: Ticket, color: (str, str)):
     )
 
 
+# TODO: This needs to be extracted in the service.
 def ticket_holdings(account_address: str, creator_address: str) -> List[Ticket]:
     indexer = get_indexer()
 
@@ -190,28 +191,37 @@ def ticket_holdings(account_address: str, creator_address: str) -> List[Ticket]:
 
 
 def update_state():
-    global seller_address
-
-    st.session_state[f"ticket_holdings_{seller_address}"] = ticket_holdings(account_address=seller_address,
+    st.session_state[f"ticket_holdings_{SELLER_ADDRESS}"] = ticket_holdings(account_address=SELLER_ADDRESS,
                                                                             creator_address=CONCERT_COMPANY_ADDRESS)
-    print(len(st.session_state[f"ticket_holdings_{seller_address}"]))
     time.sleep(2)
-    st.session_state[f"sell_offers_{seller_address}"] = \
+    st.session_state[f"sell_offers_{SELLER_ADDRESS}"] = \
         SecondHandOfferingsService.available_offers(app_id=APP_ID,
-                                                    sellers_of_interest={seller_address})
-    print(len(st.session_state[f"sell_offers_{seller_address}"]))
+                                                    sellers_of_interest={SELLER_ADDRESS})
 
-    list_tickets()
+
+def stop_selling(asa_configuration):
+    tokility_dex_service.stop_selling(seller_pk=CURR_CREDENTIALS[0],
+                                      asa_configuration=asa_configuration)
+    time.sleep(1)
+    update_state()
+
+
+def sell_token(asa_configuration, price):
+    tokility_dex_service.make_sell_offer(seller_pk=CURR_CREDENTIALS[0],
+                                         sell_price=int(price * 1000000),
+                                         asa_configuration=asa_configuration)
+    time.sleep(1)
+    update_state()
 
 
 def list_tickets():
-    tickets: List[Ticket] = st.session_state[f"ticket_holdings_{seller_address}"]
-    sale_offers: List[SaleOffer] = st.session_state[f"sell_offers_{seller_address}"]
+    tickets: List[Ticket] = st.session_state[f"ticket_holdings_{SELLER_ADDRESS}"]
+    sale_offers: List[SaleOffer] = st.session_state[f"sell_offers_{SELLER_ADDRESS}"]
 
-    for idx, curr_ticket in enumerate(tickets):
+    for curr_ticket in tickets:
+        ID = curr_ticket.asa_configuration.asa_id
         concert_ticket = ConcertTicket(**curr_ticket.dict())
         show_ticket_info(ticket=concert_ticket, color=COLORS[random.randint(0, len(COLORS) - 1)])
-        credentials = [cred for cred in BUYERS if cred[1] == seller_address][0]
 
         # Show the current selling offer.
         curr_sell_offer = None
@@ -219,54 +229,52 @@ def list_tickets():
             if offer.asa_id == curr_ticket.asa_configuration.asa_id:
                 curr_sell_offer = offer
 
+        cols = st.columns(2)
         if curr_sell_offer is not None:
-            cols = st.columns(2)
             cols[0].write(f'Ticket already on sale for {algos(curr_sell_offer.second_hand_amount)} algos')
+            _ = cols[1].button("Stop selling",
+                               key=f"{SELLER_ADDRESS}_stop_sell_button_{ID}",
+                               on_click=stop_selling,
+                               args=(concert_ticket.asa_configuration,))
+        else:
+            cols[0].write("")
+            cols[1].write("")
 
-            if cols[1].button("Stop selling", key=f"{seller_address}_stop_sell_button_{idx}"):
-                tokility_dex_service.stop_selling(seller_pk=credentials[0],
-                                                  asa_configuration=curr_ticket.asa_configuration)
+        sell_price = st.number_input('Insert sell price in Algos', key=f"{SELLER_ADDRESS}_number_input_{ID}")
 
-                update_state()
-
-        number = st.number_input('Insert sell price in Algos', key=f"{seller_address}_number_input_{idx}")
-
-        if st.button("Sell token", key=f"{seller_address}_sell_button_{idx}"):
-            tokility_dex_service.make_sell_offer(seller_pk=credentials[0],
-                                                 sell_price=int(number * 1000000),
-                                                 asa_configuration=curr_ticket.asa_configuration)
-
-            update_state()
+        _ = st.button("Sell token",
+                      key=f"{SELLER_ADDRESS}_sell_button_{ID}",
+                      on_click=sell_token,
+                      args=(concert_ticket.asa_configuration, sell_price))
 
 
-if __name__ == '__main__':
-    PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
-    BUYERS = [get_account_credentials(2), get_account_credentials(3)]
-    CONCERT_COMPANY_PK, CONCERT_COMPANY_ADDRESS, _ = get_account_with_name("concert_company")
-    client = get_client()
+client = get_client()
 
-    tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
-                                              app_creator_pk=PLATFORM_PK,
-                                              client=client,
-                                              app_id=APP_ID)
+PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
+BUYERS = [get_account_credentials(2), get_account_credentials(3)]
+CONCERT_COMPANY_PK, CONCERT_COMPANY_ADDRESS, _ = get_account_with_name("concert_company")
 
-    concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
-                                             creator_pk=CONCERT_COMPANY_PK,
-                                             tokility_dex_app_id=tokility_dex_service.app_id,
-                                             client=client)
+tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
+                                          app_creator_pk=PLATFORM_PK,
+                                          client=client,
+                                          app_id=APP_ID)
 
-    CLAWBACK_ADDRESS = concert_company_asa_service.clawback_address
-    CLAWBACK_ADDRESS_BYTES = concert_company_asa_service.clawback_address_bytes
+concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
+                                         creator_pk=CONCERT_COMPANY_PK,
+                                         tokility_dex_app_id=tokility_dex_service.app_id,
+                                         client=client)
 
-    seller_address = st.sidebar.selectbox(
-        "Seller address",
-        tuple([credentials[1] for credentials in BUYERS])
-    )
+SELLER_ADDRESS = st.sidebar.selectbox(
+    "Seller address",
+    tuple([c[1] for c in BUYERS])
+)
 
-    st.title(f"Tokility marketplace")
-    st.text(f"Smart contract id: {APP_ID}")
+CURR_CREDENTIALS = [cred for cred in BUYERS if cred[1] == SELLER_ADDRESS][0]
 
-    if f'ticket_holdings_{seller_address}' not in st.session_state:
-        update_state()
-    else:
-        list_tickets()
+st.title(f"Tokility marketplace")
+st.text(f"Smart contract id: {APP_ID}")
+
+if f'ticket_holdings_{SELLER_ADDRESS}' not in st.session_state:
+    update_state()
+
+list_tickets()

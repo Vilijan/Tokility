@@ -8,11 +8,7 @@ from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
 from src.blockchain_utils.credentials import get_account_credentials, get_account_with_name, get_client
 from PIL import Image
-
-PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
-BUYERS = [get_account_credentials(2), get_account_credentials(3)]
-CONCERT_COMPANY_PK, CONCERT_COMPANY_ADDRESS, _ = get_account_with_name("concert_company")
-client = get_client()
+from src.models.asset_configurations import ASAConfiguration
 
 
 def algos(micro_algos) -> float:
@@ -31,11 +27,10 @@ def show_sale_offer(sale_offer: SaleOffer):
             </header>
         <div class="announcement">
             <h1>{ticket.ticket_name}</h1>
-            <h3>{ticket.asa_configuration.economy_configuration.show_info_row1()}</h3>
+            <h3>{ticket.ticket_info}</h3>
+            <h4>{ticket.asa_configuration.economy_configuration.show_info_row1()}</h4>
             <h4>{ticket.asa_configuration.economy_configuration.show_info_row2()}</h4>
             <h4>{ticket.asa_configuration.economy_configuration.show_info_row3()}</h4>
-            <h4>{ticket.ticket_info}</h4>
-            <h4>{offer_type}</h4>
         </div>    
         </div>
     """
@@ -152,7 +147,88 @@ def show_sale_offer(sale_offer: SaleOffer):
     )
 
 
-APP_ID = 27661966
+def buy_ticket_first_sale(buyer_private_key, buyer_address, asa_configuration):
+    concert_company_asa_service.asa_opt_in(asa_id=asa_configuration.asa_id,
+                                           user_pk=buyer_private_key)
+
+    tx_id = tokility_dex_service.initial_buy(buyer_addr=buyer_address,
+                                             buyer_pk=buyer_private_key,
+                                             asa_configuration=asa_configuration,
+                                             asa_clawback_addr=CLAWBACK_ADDRESS,
+                                             asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
+    print(f'initial buy completed in: {tx_id}')
+
+
+def buy_ticket_second_hand(buyer_private_key: str,
+                           buyer_address: str,
+                           sale_offer: SaleOffer):
+    concert_company_asa_service.asa_opt_in(asa_id=sale_offer.ticket.asa_configuration.asa_id,
+                                           user_pk=buyer_private_key)
+
+    tx_id = tokility_dex_service.buy_from_seller(buyer_addr=buyer_address,
+                                                 buyer_pk=buyer_private_key,
+                                                 seller_addr=sale_offer.seller_address,
+                                                 price=sale_offer.second_hand_amount,
+                                                 asa_configuration=sale_offer.ticket.asa_configuration,
+                                                 asa_clawback_addr=CLAWBACK_ADDRESS,
+                                                 asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
+
+    print(f'Second hand buy completed in: {tx_id}')
+
+
+def load_offers():
+    time.sleep(2)
+    initial_offers = InitialBuyOfferingsService.available_sell_offers(creator_address=CONCERT_COMPANY_ADDRESS)
+    time.sleep(3)
+    second_hand_offers = SecondHandOfferingsService.available_offers(app_id=APP_ID)
+
+    curr_offers: List[SaleOffer] = []
+    curr_offers.extend(initial_offers)
+    curr_offers.extend(second_hand_offers)
+
+    st.session_state.sale_offers = curr_offers
+
+    print(f'Inside: Sale offers loaded. {len(st.session_state.sale_offers)}')
+
+
+def buy_sell_offer(sale_offer: SaleOffer):
+    if sale_offer.sale_type == "initial_buy":
+        buy_ticket_first_sale(buyer_private_key=CREDENTIALS[0],
+                              buyer_address=CREDENTIALS[1],
+                              asa_configuration=sale_offer.ticket.asa_configuration)
+    else:
+        buy_ticket_second_hand(buyer_private_key=CREDENTIALS[0],
+                               buyer_address=CREDENTIALS[1],
+                               sale_offer=sale_offer)
+
+    load_offers()
+
+
+def list_sale_offers(available_sale_offers: List[SaleOffer]):
+    for sale_offer in available_sale_offers:
+        ID = sale_offer.ticket.asa_configuration.asa_id
+        # TODO: This should be improved, currently is hard cast
+        sale_offer.ticket = ConcertTicket(**sale_offer.ticket.dict())
+
+        # show_ticket_info(ticket=concert_ticket)
+        show_sale_offer(sale_offer=sale_offer)
+
+        # Buy token.
+        col1, col2, col3, col4, col5 = st.columns(5)
+        st.write("_______")
+        st.write("")
+        _ = col3.button("⬆ ️Buy token",
+                        key=f"buy_button_{ID}",
+                        on_click=buy_sell_offer,
+                        args=(sale_offer,))
+
+
+PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
+BUYERS = [get_account_credentials(2), get_account_credentials(3)]
+CONCERT_COMPANY_PK, CONCERT_COMPANY_ADDRESS, _ = get_account_with_name("concert_company")
+client = get_client()
+
+APP_ID = 28471564
 
 tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
                                           app_creator_pk=PLATFORM_PK,
@@ -167,119 +243,49 @@ concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
 CLAWBACK_ADDRESS = concert_company_asa_service.clawback_address
 CLAWBACK_ADDRESS_BYTES = concert_company_asa_service.clawback_address_bytes
 
-
-def buy_ticket(buyer_private_key, buyer_address, asa_configuration):
-    concert_company_asa_service.asa_opt_in(asa_id=asa_configuration.asa_id,
-                                           user_pk=buyer_private_key)
-
-    tx_id = tokility_dex_service.initial_buy(buyer_addr=buyer_address,
-                                             buyer_pk=buyer_private_key,
-                                             asa_configuration=asa_configuration,
-                                             asa_clawback_addr=CLAWBACK_ADDRESS,
-                                             asa_clawback_bytes=CLAWBACK_ADDRESS_BYTES)
-    print(f'ticket bought in: {tx_id}')
-
-
-def load_offers() -> List[SaleOffer]:
-    initial_offers = InitialBuyOfferingsService.available_sell_offers(creator_address=CONCERT_COMPANY_ADDRESS)
-    time.sleep(3)
-    second_hand_offers = SecondHandOfferingsService.available_offers(app_id=APP_ID)
-
-    sale_offers: List[SaleOffer] = []
-    sale_offers.extend(initial_offers)
-    sale_offers.extend(second_hand_offers)
-
-    return sale_offers
-
-
-if 'sale_offers' not in st.session_state:
-    st.session_state.sale_offers = load_offers()
-
 image = Image.open("tokility-logo-gray.png")
 st.sidebar.header(f"Marketplace")
 st.sidebar.image(image, width=300)
 st.sidebar.header(f"ASC1: {APP_ID}")
 
-ui_type = st.sidebar.selectbox("Market type", ("Buy Tokility tokens", "Sell Tokility tokens"))
+BUYER_ADDRESS = st.sidebar.selectbox(
+    "Buyer address",
+    tuple([credentials[1] for credentials in BUYERS])
+)
 
+if 'sale_offers' not in st.session_state:
+    load_offers()
 
-def buy_ui():
-    sale_offers = st.session_state.sale_offers
+sale_offers = st.session_state.sale_offers
+print(f'Outside: Sale offers loaded. {len(sale_offers)}')
 
-    buyer_address = st.sidebar.selectbox(
-        "Buyer address",
-        tuple([credentials[1] for credentials in BUYERS])
-    )
+CREDENTIALS = [cred for cred in BUYERS if cred[1] == BUYER_ADDRESS][0]
 
-    sale_offers = [offer for offer in sale_offers if offer.seller_address != buyer_address]
+sale_offers = [offer for offer in sale_offers if offer.seller_address != BUYER_ADDRESS]
 
-    # Ticket type
-    ticket_type = st.sidebar.selectbox(
-        "Ticket type",
-        ('all', Ticket.BusinessType.concert, Ticket.BusinessType.cinema, Ticket.BusinessType.conference,
-         Ticket.BusinessType.restaurant, Ticket.BusinessType.appointment)
-    )
+# Ticket type
+ticket_type = st.sidebar.selectbox(
+    "Ticket type",
+    ('all', Ticket.BusinessType.concert, Ticket.BusinessType.cinema, Ticket.BusinessType.conference,
+     Ticket.BusinessType.restaurant, Ticket.BusinessType.appointment)
+)
 
-    if ticket_type != 'all':
-        sale_offers = [offer for offer in sale_offers if offer.ticket.business_type == ticket_type]
+if ticket_type != 'all':
+    sale_offers = [offer for offer in sale_offers if offer.ticket.business_type == ticket_type]
 
-    # Price range.
-    # TODO: Implement proper max price. Take the max
-    price_slider = st.sidebar.slider('Select price range', 0.0, 30.0, (0.0, 15.0))
+# Price range.
+# TODO: Implement proper max price. Take the max
+price_slider = st.sidebar.slider('Select price range', 0.0, 30.0, (0.0, 15.0))
 
-    sale_offers = [offer for offer in sale_offers if algos(offer.amount) >= price_slider[0]]
-    sale_offers = [offer for offer in sale_offers if algos(offer.amount) <= price_slider[1]]
+sale_offers = [offer for offer in sale_offers if algos(offer.amount) >= price_slider[0]]
+sale_offers = [offer for offer in sale_offers if algos(offer.amount) <= price_slider[1]]
 
-    # Re-selling allowed
-    reselling_allowed_checkbox = st.sidebar.checkbox('Reselling allowed', value=True)
+# Re-selling allowed
+reselling_allowed_checkbox = st.sidebar.checkbox('Reselling allowed', value=False)
 
-    if reselling_allowed_checkbox:
-        sale_offers = [offer for offer in sale_offers
-                       if offer.ticket.asa_configuration.economy_configuration.reselling_allowed == 1]
+if reselling_allowed_checkbox:
+    sale_offers = [offer for offer in sale_offers
+                   if offer.ticket.asa_configuration.economy_configuration.reselling_allowed == 1]
 
-    def asa_config_ui(ticket: Ticket, asa_id: int):
-        my_expander = st.expander(label=f'Ticket configuration for {asa_id}', expanded=False)
-        with my_expander:
-            st.image(ticket.ipfs_image, width=400)
-            st.text(f"Issued by: {ticket.issuer}")
-            st.text(f"owner_fee: {algos(ticket.asa_configuration.economy_configuration.owner_fee)} "
-                    f"platform_fee: {algos(ticket.asa_configuration.initial_offering_configuration.tokiliy_fee)}")
-            if ticket.asa_configuration.economy_configuration.reselling_allowed == 1:
-                st.success("Reselling is allowed")
-                st.text(f"maximum sell price: {algos(ticket.asa_configuration.economy_configuration.max_sell_price)}")
-            else:
-                st.error("Reselling is not allowed")
-
-            if ticket.asa_configuration.economy_configuration.gifting_allowed == 1:
-                st.success("Gifting of the ticket is allowed")
-            else:
-                st.error("Gifting of the ticket is not allowed")
-
-    for idx, sale_offer in enumerate(sale_offers):
-        # TODO: This should be improved, currently is hard cast
-        sale_offer.ticket = ConcertTicket(**sale_offer.ticket.dict())
-
-        # show_ticket_info(ticket=concert_ticket)
-        show_sale_offer(sale_offer=sale_offer)
-
-        col1, col2, col3, col4, col5 = st.columns(5)
-        st.write("_______")
-        st.write("")
-        button_clicked = col3.button("⬆ ️Buy token", key=str(idx))
-
-        if button_clicked:
-            credentials = [cred for cred in BUYERS if cred[1] == buyer_address][0]
-            buy_ticket(buyer_private_key=credentials[0],
-                       buyer_address=credentials[1],
-                       asa_configuration=sale_offer.ticket.asa_configuration)
-            st.session_state.sale_offers = load_offers()
-
-
-def sell_ui():
-    st.title("Sell tokens")
-
-
-if ui_type == "Buy Tokility tokens":
-    buy_ui()
-else:
-    sell_ui()
+print(f'Outside after filters: Sale offers loaded. {len(sale_offers)}')
+list_sale_offers(available_sale_offers=sale_offers)

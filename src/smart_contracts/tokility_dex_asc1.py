@@ -22,8 +22,7 @@ class TokilityDEXInterface(ABC):
         pass
 
     @abstractmethod
-    def gift_asa(self, asa_id, receiver_address):
-        # asa_id, receiver_address
+    def gift_asa(self):
         pass
 
 
