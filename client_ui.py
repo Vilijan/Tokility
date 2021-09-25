@@ -13,7 +13,8 @@ from src.models.ticket_models import *
 
 
 def run_app():
-    image = Image.open("tokility-logo-gray.png")
+    image = Image.open("data/ui/tokility-logo-gray.png")
+    st.sidebar.header(f"Client UI")
     st.sidebar.image(image, width=300)
     st.sidebar.header("Simulating login of a seller")
     seller_list = ["-"] + list(all_sellers_dict.keys())
@@ -103,12 +104,12 @@ def show_tickets(asa_type: str) -> None:
         seller_tokens = load_restaurant_tickets()
 
     # seller all tickets overview
-    with st.expander("Tickets", True):
+    with st.expander("Tickets", expanded=False):
         for ticket in seller_tokens:
             show_ticket_info(ticket)
 
     # seller transactions overview
-    with st.expander("All transactions", True):
+    with st.expander("All transactions", expanded=True):
         # seller overview over all transactions
         st.header("🕵️ All transactions overview")
         # TODO: Add dummy data and display it in a nice way
@@ -153,9 +154,9 @@ def store_concert_input(asa_price: int,
                                        datetime=str(date_time))
 
         concert_tickets.append(concert_ticket)
-        json_data = read_json('concert_tickets_dummy.json')
+        json_data = read_json('data/ui/concert_tickets_dummy.json')
         json_data['concert_tickets'].append(concert_ticket.dict())
-        save_json('concert_tickets_dummy.json', json_data)
+        save_json('data/ui/concert_tickets_dummy.json', json_data)
 
     except ValueError as error:
         st.error(f"Error! Ticket cannot be stored due to inconsistent formats. {error}")
@@ -202,9 +203,9 @@ def store_cinema_input(asa_price: int,
                                      datetime=str(date_time))
 
         cinema_tickets.append(cinema_ticket)
-        json_data = read_json('cinema_tickets_dummy.json')
+        json_data = read_json('data/ui/cinema_tickets_dummy.json')
         json_data['cinema_tickets'].append(cinema_ticket.dict())
-        save_json('cinema_tickets_dummy.json', json_data)
+        save_json('data/ui/cinema_tickets_dummy.json', json_data)
 
     except ValueError as error:
         st.error(f"Error! Ticket cannot be stored due to inconsistent formats. {error}")
@@ -249,9 +250,9 @@ def store_conference_input(asa_price: int,
                                              datetime=str(date_time))
 
         conference_tickets.append(conference_ticket)
-        json_data = read_json('conference_tickets_dummy.json')
+        json_data = read_json('data/ui/conference_tickets_dummy.json')
         json_data['conference_tickets'].append(conference_ticket.dict())
-        save_json('conference_tickets_dummy.json', json_data)
+        save_json('data/ui/conference_tickets_dummy.json', json_data)
 
     except ValueError as error:
         st.error(f"Error! Ticket cannot be stored due to inconsistent formats. {error}")
@@ -294,9 +295,9 @@ def store_appointment_input(asa_price: int,
                                                datetime=str(date_time))
 
         appointment_tickets.append(appointment_ticket)
-        json_data = read_json('appointment_tickets_dummy.json')
+        json_data = read_json('data/ui/appointment_tickets_dummy.json')
         json_data['appointment_tickets'].append(appointment_ticket.dict())
-        save_json('appointment_tickets_dummy.json', json_data)
+        save_json('data/ui/appointment_tickets_dummy.json', json_data)
 
     except ValueError as error:
         st.error(f"Error! Ticket cannot be stored due to inconsistent formats. {error}")
@@ -339,9 +340,9 @@ def store_restaurant_input(asa_price: int,
                                              datetime=str(date_time))
 
         restaurant_tickets.append(restaurant_ticket)
-        json_data = read_json('restaurant_tickets_dummy.json')
+        json_data = read_json('data/ui/restaurant_tickets_dummy.json')
         json_data['restaurant_tickets'].append(restaurant_ticket.dict())
-        save_json('restaurant_tickets_dummy.json', json_data)
+        save_json('data/ui/restaurant_tickets_dummy.json', json_data)
 
     except ValueError as error:
         st.error(f"Error! Ticket cannot be stored due to inconsistent formats. {error}")
@@ -351,7 +352,7 @@ def show_concert_input() -> tuple:
     asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
     date_time, name = show_general_input_fields('concert')
 
-    with st.expander("Concert specifics", True):
+    with st.expander("Concert specifics", expanded=False):
         ticket_types = ['Seating', 'Standing', 'VIP']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'concert_ticket_types')
         location = st.text_input("Enter the location of the concert", key=f'concert_location')
@@ -363,7 +364,7 @@ def show_concert_input() -> tuple:
 def show_cinema_input() -> tuple:
     asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
     date_time, name = show_general_input_fields('cinema')
-    with st.expander("Cinema specifics", True):
+    with st.expander("Cinema specifics", expanded=False):
         ticket_types = ['Regular', 'VIP']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'cinema_ticket_types')
         seat = st.slider("Select a seat", min_value=1, max_value=100, step=1, key=f'cinema_seat')
@@ -376,7 +377,7 @@ def show_cinema_input() -> tuple:
 def show_conference_input() -> tuple:
     asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
     date_time, name = show_general_input_fields('conference')
-    with st.expander("Conference specifics", True):
+    with st.expander("Conference specifics", expanded=False):
         ticket_types = ['Regular', 'VIP']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'conference_ticket_types')
 
@@ -389,7 +390,7 @@ def show_conference_input() -> tuple:
 def show_appointment_input() -> tuple:
     asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
     date_time, name = show_general_input_fields('appointment')
-    with st.expander("Appointment specifics", True):
+    with st.expander("Appointment specifics", expanded=False):
         duration = st.number_input("Select the duration in hours", key=f'appointment_duration')
 
         return asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
@@ -399,7 +400,7 @@ def show_appointment_input() -> tuple:
 def show_restaurant_input() -> tuple:
     asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
     date_time, name = show_general_input_fields('restaurant')
-    with st.expander("Restaurant specifics", True):
+    with st.expander("Restaurant specifics", expanded=False):
         ticket_types = ['Food', 'Drinks only']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'restaurant_ticket_types')
 
@@ -413,7 +414,7 @@ def generate_id():
 
 # we need this so that streamlit form refreshes when changing a seller
 def show_general_input_fields(key: str) -> tuple:
-    with st.expander("Base Configuration", True):
+    with st.expander("Base Configuration", expanded=False):
         st.header("🎟 Set the general rules")
         asa_price = st.number_input("Insert price", key=f'{key}_price')
         reselling_allowed = st.checkbox("Tick this box if you allow reselling", key=f'{key}_reselling_allowed')
@@ -493,7 +494,7 @@ def show_ticket_info(ticket: Ticket):
             
             h4 {
               font-size: 18px;
-              color: #ccc;
+              color: #fff;
             }
             
             .card {
@@ -504,7 +505,7 @@ def show_ticket_info(ticket: Ticket):
               height: 350px;
               width: 600px;
               text-align: center;
-              background: linear-gradient(#E96874, #6E3663, #2B0830);
+              background: linear-gradient(#EC6F66, #F3A183);
               border-radius: 2px;
               box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
               color: #fff;
@@ -595,7 +596,7 @@ def read_json(file_name: str) -> dict:
 
 
 def load_concert_tickets() -> List[ConcertTicket]:
-    json_data = read_json('concert_tickets_dummy.json')
+    json_data = read_json('data/ui/concert_tickets_dummy.json')
 
     tickets = []
 
@@ -606,7 +607,7 @@ def load_concert_tickets() -> List[ConcertTicket]:
 
 
 def load_cinema_tickets() -> List[CinemaTicket]:
-    json_data = read_json('cinema_tickets_dummy.json')
+    json_data = read_json('data/ui/cinema_tickets_dummy.json')
 
     tickets = []
 
@@ -617,7 +618,7 @@ def load_cinema_tickets() -> List[CinemaTicket]:
 
 
 def load_conference_tickets() -> List[ConferenceTicket]:
-    json_data = read_json('conference_tickets_dummy.json')
+    json_data = read_json('data/ui/conference_tickets_dummy.json')
 
     tickets = []
 
@@ -628,7 +629,7 @@ def load_conference_tickets() -> List[ConferenceTicket]:
 
 
 def load_appointment_tickets() -> List[AppointmentTicket]:
-    json_data = read_json('appointment_tickets_dummy.json')
+    json_data = read_json('data/ui/appointment_tickets_dummy.json')
 
     tickets = []
 
@@ -639,7 +640,7 @@ def load_appointment_tickets() -> List[AppointmentTicket]:
 
 
 def load_restaurant_tickets() -> List[RestaurantTicket]:
-    json_data = read_json('restaurant_tickets_dummy.json')
+    json_data = read_json('data/ui/restaurant_tickets_dummy.json')
 
     tickets = []
 
@@ -650,7 +651,7 @@ def load_restaurant_tickets() -> List[RestaurantTicket]:
 
 
 if __name__ == '__main__':
-    all_sellers_dict = read_json('sellers_database.json')
+    all_sellers_dict = read_json('data/ui/sellers_database.json')
 
     concert_tickets = load_concert_tickets()
     cinema_tickets = load_cinema_tickets()

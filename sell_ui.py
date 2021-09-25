@@ -9,22 +9,10 @@ from src.services.tokility_dex_service import TokilityDEXService
 from src.blockchain_utils.credentials import get_account_credentials, get_account_with_name, get_client, get_indexer
 import requests
 import random
+from PIL import Image
 
 COLORS = [
-    ("#6d9b47", "#3cffc2"),
-    ("#80becb", "#02e9c8"),
-    ("#fdae74", "#bb2d37"),
-    ("#87279e", "#12688e"),
-    ("#6f69d2", "#b9ebf9"),
-    ("#55b6e1", "#707208"),
-    ("#ae8f2d", "#729945"),
-    ("#317ab8", "#4e3b61"),
-    ("#c49610", "#6692b0"),
-    ("#c6bc1a", "#75b131"),
-    ("#ad4b00", "#612cc3"),
-    ("#9f7cc6", "#806029"),
-    ("#8f0c20", "#23b34f"),
-    ("#611030", "#349a4a"),
+    ("#EC6F66", "#F3A183"),
 ]
 
 APP_ID = 28471564
@@ -242,10 +230,15 @@ def list_tickets():
 
         sell_price = st.number_input('Insert sell price in Algos', key=f"{SELLER_ADDRESS}_number_input_{ID}")
 
-        _ = st.button("Sell token",
-                      key=f"{SELLER_ADDRESS}_sell_button_{ID}",
-                      on_click=sell_token,
-                      args=(concert_ticket.asa_configuration, sell_price))
+        sell_cols = st.columns(5)
+        st.write("")
+
+        _ = sell_cols[2].button("Sell token",
+                                key=f"{SELLER_ADDRESS}_sell_button_{ID}",
+                                on_click=sell_token,
+                                args=(concert_ticket.asa_configuration, sell_price))
+
+        st.write("_______")
 
 
 client = get_client()
@@ -264,15 +257,17 @@ concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
                                          tokility_dex_app_id=tokility_dex_service.app_id,
                                          client=client)
 
+image = Image.open("data/ui/tokility-logo-gray.png")
+st.sidebar.header(f"Sell UI")
+st.sidebar.image(image, width=300)
+st.sidebar.header(f"ASC1: {APP_ID}")
+
 SELLER_ADDRESS = st.sidebar.selectbox(
     "Seller address",
     tuple([c[1] for c in BUYERS])
 )
 
 CURR_CREDENTIALS = [cred for cred in BUYERS if cred[1] == SELLER_ADDRESS][0]
-
-st.title(f"Tokility marketplace")
-st.text(f"Smart contract id: {APP_ID}")
 
 if f'ticket_holdings_{SELLER_ADDRESS}' not in st.session_state:
     update_state()

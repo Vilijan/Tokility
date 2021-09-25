@@ -151,7 +151,7 @@ def generate_concert_json_list():
         tickets_dummy['concert_tickets'].append(foo_fighters_ticket.dict())
         tickets_dummy['concert_tickets'].append(u2_ticket.dict())
 
-    save_json('concert_tickets_dummy.json', tickets_dummy)
+    save_json('../data/ui/concert_tickets_dummy.json', tickets_dummy)
 
 
 def generate_movie_json_list():
@@ -180,7 +180,7 @@ def generate_movie_json_list():
         tickets_dummy['cinema_tickets'].append(primal_fear_config_ticket.dict())
         tickets_dummy['cinema_tickets'].append(gone_girl_config_ticket.dict())
 
-    save_json('cinema_tickets_dummy.json', tickets_dummy)
+    save_json('../data/ui/cinema_tickets_dummy.json', tickets_dummy)
 
 
 def generate_conference_json_list():
@@ -199,7 +199,7 @@ def generate_conference_json_list():
 
         tickets_dummy['conference_tickets'].append(algorand_conference_ticket.dict())
 
-    save_json('conference_tickets_dummy.json', tickets_dummy)
+    save_json('../data/ui/conference_tickets_dummy.json', tickets_dummy)
 
 
 def generate_appointment_json_list():
@@ -218,7 +218,7 @@ def generate_appointment_json_list():
 
         tickets_dummy['appointment_tickets'].append(appointment_ticket.dict())
 
-    save_json('appointment_tickets_dummy.json', tickets_dummy)
+    save_json('../data/ui/appointment_tickets_dummy.json', tickets_dummy)
 
 
 def generate_restaurant_json_list():
@@ -237,7 +237,7 @@ def generate_restaurant_json_list():
 
         tickets_dummy['restaurant_tickets'].append(restaurant_ticket.dict())
 
-    save_json('restaurant_tickets_dummy.json', tickets_dummy)
+    save_json('../data/ui/restaurant_tickets_dummy.json', tickets_dummy)
 
 
 if __name__ == '__main__':

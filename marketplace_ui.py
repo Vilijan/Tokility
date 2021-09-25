@@ -58,7 +58,7 @@ def show_sale_offer(sale_offer: SaleOffer):
 
             h4 {
               font-size: 18px;
-              color: #ccc;
+              color: #fff;
             }
 
             .card {
@@ -69,7 +69,7 @@ def show_sale_offer(sale_offer: SaleOffer):
               height: 350px;
               width: 600px;
               text-align: center;
-              background: linear-gradient(#E96874, #6E3663, #2B0830);
+              background: linear-gradient(#EC6F66, #F3A183);
               border-radius: 2px;
               box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
               color: #fff;
@@ -188,8 +188,6 @@ def load_offers():
 
     st.session_state.sale_offers = curr_offers
 
-    print(f'Inside: Sale offers loaded. {len(st.session_state.sale_offers)}')
-
 
 def buy_sell_offer(sale_offer: SaleOffer):
     if sale_offer.sale_type == "initial_buy":
@@ -210,7 +208,6 @@ def list_sale_offers(available_sale_offers: List[SaleOffer]):
         # TODO: This should be improved, currently is hard cast
         sale_offer.ticket = ConcertTicket(**sale_offer.ticket.dict())
 
-        # show_ticket_info(ticket=concert_ticket)
         show_sale_offer(sale_offer=sale_offer)
 
         # Buy token.
@@ -243,8 +240,8 @@ concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
 CLAWBACK_ADDRESS = concert_company_asa_service.clawback_address
 CLAWBACK_ADDRESS_BYTES = concert_company_asa_service.clawback_address_bytes
 
-image = Image.open("tokility-logo-gray.png")
-st.sidebar.header(f"Marketplace")
+image = Image.open("data/ui/tokility-logo-gray.png")
+st.sidebar.header(f"Marketplace UI")
 st.sidebar.image(image, width=300)
 st.sidebar.header(f"ASC1: {APP_ID}")
 
@@ -257,7 +254,6 @@ if 'sale_offers' not in st.session_state:
     load_offers()
 
 sale_offers = st.session_state.sale_offers
-print(f'Outside: Sale offers loaded. {len(sale_offers)}')
 
 CREDENTIALS = [cred for cred in BUYERS if cred[1] == BUYER_ADDRESS][0]
 
@@ -287,5 +283,4 @@ if reselling_allowed_checkbox:
     sale_offers = [offer for offer in sale_offers
                    if offer.ticket.asa_configuration.economy_configuration.reselling_allowed == 1]
 
-print(f'Outside after filters: Sale offers loaded. {len(sale_offers)}')
 list_sale_offers(available_sale_offers=sale_offers)
