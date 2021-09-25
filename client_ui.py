@@ -12,8 +12,13 @@ from src.models.asset_configurations import *
 from src.models.ticket_models import *
 
 
+COLORS = [
+    ("#9E392B", "#B98888"),
+]
+
+
 def run_app():
-    image = Image.open("data/ui/tokility-logo-gray.png")
+    image = Image.open("data/ui/tokility-logo.png")
     st.sidebar.header(f"Client UI")
     st.sidebar.image(image, width=300)
     st.sidebar.header("Simulating login of a seller")
@@ -106,7 +111,7 @@ def show_tickets(asa_type: str) -> None:
     # seller all tickets overview
     with st.expander("Tickets", expanded=False):
         for ticket in seller_tokens:
-            show_ticket_info(ticket)
+            show_ticket_info(ticket,  COLORS[0])
 
     # seller transactions overview
     with st.expander("All transactions", expanded=True):
@@ -453,7 +458,7 @@ def validate_input(asa_price: int,
     return True
 
 
-def show_ticket_info(ticket: Ticket):
+def show_ticket_info(ticket: Ticket, color: (str, str)):
     html_format = f"""
         <div class="card">
             <header>
@@ -477,111 +482,111 @@ def show_ticket_info(ticket: Ticket):
     )
 
     st.write(
-        """
-        <style>
-        @import url('https://fonts.googleapis.com/css?family=Asap+Condensed:600i,700');
-        
-            h1 {
-              font-size: 25px;
-              color: #fff;
-              text-transform: uppercase;
-            }
-            h3 {
-              font-size: 20px;
-              color: #fff;
-              text-transform: uppercase;
-            }
-            
-            h4 {
-              font-size: 18px;
-              color: #fff;
-            }
-            
-            .card {
-              display: flex;
-              font-family: 'Asap Condensed', sans-serif;
-              position: relative;
-              margin: auto;
-              height: 350px;
-              width: 600px;
-              text-align: center;
-              background: linear-gradient(#EC6F66, #F3A183);
-              border-radius: 2px;
-              box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
-              color: #fff;
-              padding: 30px;
-              
-            }
-            
-            .card header {
-              position: absolute;
-              top: 31px;
-              left: 0;
-              width: 100%;
-              padding: 0 10%;
-              transform: translateY(-50%);
-              display: grid;
-              grid-template-columns: 1fr 1fr 1fr;
-              align-items: center;
-            }
-            
-            .card header > *:first-child {
-              text-align: left;
-            }
-            .card header > *:last-child {
-              text-align: right;
-            }
-            
-            .id {
-              font-size: 24px;
-              position: relative;
-            }
-            
-            .announcement {
-              position: relative;
-              border: 3px solid currentColor;
-              border-top: 0;
-              width: 100%;
-              height: 100%;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            }
-            
-            .announcement:before,
-            .announcement:after {
-              content: '';
-              position: absolute;
-              top: 0px;
-              border-top: 3px solid currentColor;
-              height: 0;
-              width: 15px;
-            }
-            .announcement:before {
-              left: -3px;
-            }
-            .announcement:after {
-              right: -3px;
-            }
-            
-            * {
-              box-sizing: border-box;
-              margin: 0;
-              padding: 0;
-            }
-            
-            html, body {
-              height: 100%;
-            }
-            
-            h1, h2, h3, h4 {
-              margin: .15em 0;
-            }
-        """,
-        unsafe_allow_html=True
-    )
+        f"""
+                <style>
+                @import url('https://fonts.googleapis.com/css?family=Asap+Condensed:600i,700');
 
+                    h1 {{
+                      font-size: 25px;
+                      color: #fff;
+                      text-transform: uppercase;
+                    }}
+                    h3 {{
+                      font-size: 20px;
+                      color: #fff;
+                      text-transform: uppercase;
+                    }}
+
+                    h4 {{
+                      font-size: 18px;
+                      color: #fff;
+                    }}
+
+                    .card {{
+                      display: flex;
+                      font-family: 'Asap Condensed', sans-serif;
+                      position: relative;
+                      margin: auto;
+                      height: 350px;
+                      width: 600px;
+                      text-align: center;
+                      background: linear-gradient({color[0]}, {color[1]});
+                      border-radius: 2px;
+                      box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
+                      color: #fff;
+                      padding: 30px;
+
+                    }}
+
+                    .card header {{
+                      position: absolute;
+                      top: 31px;
+                      left: 0;
+                      width: 100%;
+                      padding: 0 10%;
+                      transform: translateY(-50%);
+                      display: grid;
+                      grid-template-columns: 1fr 1fr 1fr;
+                      align-items: center;
+                    }}
+
+                    .card header > *:first-child {{
+                      text-align: left;
+                    }}
+                    .card header > *:last-child {{
+                      text-align: right;
+                    }}
+
+                    .id {{
+                      font-size: 24px;
+                      position: relative;
+                    }}
+
+                    .announcement {{
+                      position: relative;
+                      border: 3px solid currentColor;
+                      border-top: 0;
+                      width: 100%;
+                      height: 100%;
+                      display: flex;
+                      flex-direction: column;
+                      justify-content: center;
+                      align-items: center;
+                    }}
+
+                    .announcement:before,
+                    .announcement:after {{
+                      content: '';
+                      position: absolute;
+                      top: 0px;
+                      border-top: 3px solid currentColor;
+                      height: 0;
+                      width: 15px;
+                    }}
+                    .announcement:before {{
+                      left: -3px;
+                    }}
+                    .announcement:after {{
+                      right: -3px;
+                    }}
+
+                    * {{
+                      box-sizing: border-box;
+                      margin: 0;
+                      padding: 0;
+                    }}
+
+                    html, body {{
+                      height: 100%;
+                    }}
+
+                    h1, h2, h3, h4 {{
+                      margin: .15em 0;
+                    }}
+                """,
+        unsafe_allow_html=True,
+        key=f"{ticket.asa_configuration.asa_id}"
+    )
 
 def save_json(file_name, data):
     with open(file_name, 'w') as f:

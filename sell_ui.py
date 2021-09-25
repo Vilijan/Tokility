@@ -8,11 +8,10 @@ from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
 from src.blockchain_utils.credentials import get_account_credentials, get_account_with_name, get_client, get_indexer
 import requests
-import random
 from PIL import Image
 
 COLORS = [
-    ("#EC6F66", "#F3A183"),
+    ("#9E392B", "#B98888"),
 ]
 
 APP_ID = 28715729
@@ -212,7 +211,7 @@ def list_tickets():
     for curr_ticket in tickets:
         ID = curr_ticket.asa_configuration.asa_id
         concert_ticket = ConcertTicket(**curr_ticket.dict())
-        show_ticket_info(ticket=concert_ticket, color=COLORS[random.randint(0, len(COLORS) - 1)])
+        show_ticket_info(ticket=concert_ticket, color=COLORS[0])
 
         # Show the current selling offer.
         curr_sell_offer = None
@@ -260,7 +259,7 @@ concert_company_asa_service = ASAService(creator_addr=CONFERENCE_COMPANY_ADDR,
                                          tokility_dex_app_id=tokility_dex_service.app_id,
                                          client=client)
 
-image = Image.open("data/ui/tokility-logo-gray.png")
+image = Image.open("data/ui/tokility-logo.png")
 st.sidebar.header(f"Sell UI")
 st.sidebar.image(image, width=300)
 st.sidebar.header(f"ASC1: {APP_ID}")

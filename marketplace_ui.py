@@ -8,14 +8,17 @@ from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
 from src.blockchain_utils.credentials import get_account_credentials, get_account_with_name, get_client
 from PIL import Image
-from src.models.asset_configurations import ASAConfiguration
+
+COLORS = [
+    ("#9E392B", "#B98888"),
+]
 
 
 def algos(micro_algos) -> float:
     return float(micro_algos / 1000000)
 
 
-def show_sale_offer(sale_offer: SaleOffer):
+def show_sale_offer(sale_offer: SaleOffer, color: (str, str)):
     ticket = sale_offer.ticket
     offer_type = "Buying from the creator" if sale_offer.sale_type == "initial_buy" else "Buying from reseller"
     html_format = f"""
@@ -41,109 +44,110 @@ def show_sale_offer(sale_offer: SaleOffer):
     )
 
     st.write(
-        """
-        <style>
-        @import url('https://fonts.googleapis.com/css?family=Asap+Condensed:600i,700');
+        f"""
+            <style>
+            @import url('https://fonts.googleapis.com/css?family=Asap+Condensed:600i,700');
 
-            h1 {
-              font-size: 25px;
-              color: #fff;
-              text-transform: uppercase;
-            }
-            h3 {
-              font-size: 20px;
-              color: #fff;
-              text-transform: uppercase;
-            }
+                h1 {{
+                  font-size: 25px;
+                  color: #fff;
+                  text-transform: uppercase;
+                }}
+                h3 {{
+                  font-size: 20px;
+                  color: #fff;
+                  text-transform: uppercase;
+                }}
 
-            h4 {
-              font-size: 18px;
-              color: #fff;
-            }
+                h4 {{
+                  font-size: 18px;
+                  color: #fff;
+                }}
 
-            .card {
-              display: flex;
-              font-family: 'Asap Condensed', sans-serif;
-              position: relative;
-              margin: auto;
-              height: 350px;
-              width: 600px;
-              text-align: center;
-              background: linear-gradient(#EC6F66, #F3A183);
-              border-radius: 2px;
-              box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
-              color: #fff;
-              padding: 30px;
+                .card {{
+                  display: flex;
+                  font-family: 'Asap Condensed', sans-serif;
+                  position: relative;
+                  margin: auto;
+                  height: 350px;
+                  width: 600px;
+                  text-align: center;
+                  background: linear-gradient({color[0]}, {color[1]});
+                  border-radius: 2px;
+                  box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
+                  color: #fff;
+                  padding: 30px;
 
-            }
+                }}
 
-            .card header {
-              position: absolute;
-              top: 31px;
-              left: 0;
-              width: 100%;
-              padding: 0 10%;
-              transform: translateY(-50%);
-              display: grid;
-              grid-template-columns: 1fr 1fr 1fr;
-              align-items: center;
-            }
+                .card header {{
+                  position: absolute;
+                  top: 31px;
+                  left: 0;
+                  width: 100%;
+                  padding: 0 10%;
+                  transform: translateY(-50%);
+                  display: grid;
+                  grid-template-columns: 1fr 1fr 1fr;
+                  align-items: center;
+                }}
 
-            .card header > *:first-child {
-              text-align: left;
-            }
-            .card header > *:last-child {
-              text-align: right;
-            }
+                .card header > *:first-child {{
+                  text-align: left;
+                }}
+                .card header > *:last-child {{
+                  text-align: right;
+                }}
 
-            .id {
-              font-size: 24px;
-              position: relative;
-            }
+                .id {{
+                  font-size: 24px;
+                  position: relative;
+                }}
 
-            .announcement {
-              position: relative;
-              border: 3px solid currentColor;
-              border-top: 0;
-              width: 100%;
-              height: 100%;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            }
+                .announcement {{
+                  position: relative;
+                  border: 3px solid currentColor;
+                  border-top: 0;
+                  width: 100%;
+                  height: 100%;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                  align-items: center;
+                }}
 
-            .announcement:before,
-            .announcement:after {
-              content: '';
-              position: absolute;
-              top: 0px;
-              border-top: 3px solid currentColor;
-              height: 0;
-              width: 15px;
-            }
-            .announcement:before {
-              left: -3px;
-            }
-            .announcement:after {
-              right: -3px;
-            }
+                .announcement:before,
+                .announcement:after {{
+                  content: '';
+                  position: absolute;
+                  top: 0px;
+                  border-top: 3px solid currentColor;
+                  height: 0;
+                  width: 15px;
+                }}
+                .announcement:before {{
+                  left: -3px;
+                }}
+                .announcement:after {{
+                  right: -3px;
+                }}
 
-            * {
-              box-sizing: border-box;
-              margin: 0;
-              padding: 0;
-            }
+                * {{
+                  box-sizing: border-box;
+                  margin: 0;
+                  padding: 0;
+                }}
 
-            html, body {
-              height: 100%;
-            }
+                html, body {{
+                  height: 100%;
+                }}
 
-            h1, h2, h3, h4 {
-              margin: .15em 0;
-            }
-        """,
-        unsafe_allow_html=True
+                h1, h2, h3, h4 {{
+                  margin: .15em 0;
+                }}
+            """,
+        unsafe_allow_html=True,
+        key=f"{ticket.asa_configuration.asa_id}"
     )
 
 
@@ -208,7 +212,7 @@ def list_sale_offers(available_sale_offers: List[SaleOffer]):
         # TODO: This should be improved, currently is hard cast
         sale_offer.ticket = ConferenceTicket(**sale_offer.ticket.dict())
 
-        show_sale_offer(sale_offer=sale_offer)
+        show_sale_offer(sale_offer=sale_offer, color=COLORS[0])
 
         # Buy token.
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -240,7 +244,7 @@ concert_company_asa_service = ASAService(creator_addr=CONFERENCE_COMPANY_ADDR,
 CLAWBACK_ADDRESS = concert_company_asa_service.clawback_address
 CLAWBACK_ADDRESS_BYTES = concert_company_asa_service.clawback_address_bytes
 
-image = Image.open("data/ui/tokility-logo-gray.png")
+image = Image.open("data/ui/tokility-logo.png")
 st.sidebar.header(f"Marketplace UI")
 st.sidebar.image(image, width=300)
 st.sidebar.header(f"ASC1: {APP_ID}")
