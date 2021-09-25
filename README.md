@@ -47,7 +47,7 @@ The overall configuration for the token can be represented as a JSON file. Then 
   "utility_configuration": {
     "property_1": "",
     "property_2": "",
-    ...
+    "...": "..."
   }
 }
 ```
