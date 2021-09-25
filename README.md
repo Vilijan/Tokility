@@ -8,7 +8,7 @@ By adding behavior to the tokens through various kinds of configurations, we bel
 
 # Technical explanation
 
-In order to enable the initial selling of the tickets, as well with the reselling of the tickets we needed to implement some type of decentralized exchange. Every tickets is represented as an NFT. We want all of the code logic that enables the interaction with the tickets to live on the blockchain. In order to achieve this goal, we needed to implement **only two** smart contracts: A stateful smart contract that handles all of the possible interactions with the tickets, and a stateless smart contract that act as a clawback of the NFT.
+In order to enable the initial selling of the tickets, as well with the reselling of the tickets, we needed to implement some type of decentralized exchange. Every tickets is represented as an NFT. We want all of the code logic that enables the interaction with the tickets to live on the blockchain. In order to achieve this goal, we needed to implement **only two** smart contracts: A stateful smart contract that handles all of the possible interactions with the tickets, and a stateless smart contract that act as a clawback of the NFT.
 
 ## Representation of an utility token as NFT
 
@@ -56,7 +56,7 @@ We can have huge number of tokens issued on the platform, where each token has i
 
 >  *"How a stateful smart contract will be able to have access to N configurations on the blockchain, where N can get up to millions?"* 
 
-In order to achieve this, we are using a trick with the `Metadata Hash` property for every created Algorand Standard Asset. When issuing an utility token as Algorand Standard Asset we fill the following properties:
+In order to achieve this, we are using a trick with the `Metadata Hash` property for every created Algorand Standard Asset. When issuing an utility token as an Algorand Standard Asset we fill the following properties:
 
 - `url` - points to a JSON file on the IPFS storage network. This JSON is similar to the one shown above, and it defines the behavior and the utility for that token. Once the token is issued, its behavior and utility can not be modified.
 - `metadata_hash`- this property holds the bytes obtained when the properties in the behavior configuration are concatenated and passed to a `sha256` hash function. This uniquely identifies each behavior configuration, and stores it directly on the blockchain. Later on we will see, how we access this information from the stateful smart contract in order to verify that we are following the right configuration for each token. In the following [code snipet](https://github.com/Vilijan/Tokility/blob/4bcf59a399986039506c001dc9258e0641de09c1/src/models/asset_configurations.py#L109) you can see how the `metadata_hash` is obtained before passing it to a `sha256` hash function.
@@ -99,7 +99,7 @@ concat_args = Concat(Txn.application_args[1],
      	    ....])
 ```
 
-All of the method supported by the tokility decentralized exchange are defined in the `TokilityDEXInterface`.
+The `TokilityDEXInterface` defines all of the methods that are supported for the users.
 
 ```python
 class TokilityDEXInterface(ABC):
