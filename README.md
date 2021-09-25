@@ -6,9 +6,7 @@ The utility providers, such as music bands, restaurants, airlines, conference or
 
 By adding behavior to the tokens through various kinds of configurations, we believe that we will enable the emergence of second-hand economies. Both parties, the utility providers and the users of the tokens will benefit from this kind of economy. Usually, those utility tokens will have high demand, so the users may be able to resell them for a higher price. This reselling of the utility tokens, provides additional revenue to the utility providers.
 
-One practical example would be: A cinema ticket, row 10 seat 2, for the premiere of the movie "Titanic" is issued as utility token. The cinema defines the initial price of the utility token for 20 euros. Additionally, they define that on every resell of the ticket they want to earn 25% of the profit while limiting the maximum resell price to be 100 euros. Some people are excited to watch the Titanic on the premiere, while some are willing to sell it if they can not make it or want to make some additional money.
-
-# Technical solution
+# Technical explanation
 
 In order to enable the initial selling of the tickets, as well with the reselling of the tickets we needed to implement some type of decentralized exchange. Every tickets is represented as an NFT. We want all of the code logic that enables the interaction with the tickets to live on the blockchain. In order to achieve this goal, we needed to implement **only two** smart contracts: A stateful smart contract that handles all of the possible interactions with the tickets, and a stateless smart contract that act as a clawback of the NFT.
 
@@ -16,7 +14,7 @@ In order to enable the initial selling of the tickets, as well with the resellin
 
 As we said earlier, each utility token is represented as an NFT on the Algorand blockchain. We want each token to have a configurable behavior and a configurable utility. Additionally, we want all of this data to be transparent and to live on the blockchain. 
 
-![3](C:\Projects\Tokility_New\images\3.png)
+![configurations](https://github.com/Vilijan/Tokility/blob/master/images/3.png?raw=true)
 
 The behavior configuration defines how the token will be transferred on the blockchain, while the utility configuration defines what utility the token has in the physical or the virtual world. The blockchain can not verify the properties in the utility configuration, the users need to trust the utility provider that they will provide the utilities that they said would. We do not have any restrictions upon creating the utility configuration.
 
@@ -67,7 +65,7 @@ In order to achieve this, we are using a trick with the `Metadata Hash` property
 
 The whole process of creating the NFTs can be summarized in the image below.
 
-![4](C:\Projects\Tokility_New\images\4.png)
+![nft deployment](https://github.com/Vilijan/Tokility/blob/master/images/4.png?raw=true)
 
 # Stateful smart contract as a decentralized exchange
 
@@ -148,10 +146,9 @@ class TokilityDEXInterface(ABC):
 - `stop_selling` - stops a current active sell offer. Only the token owner can stop a sell offer. This method is invoked only through a single application call transaction.
 
 - `gift_asa` - send the utility token that you own to a some address without listing it on the second-hand economy. This is an atomic transfer of four transactions:
-
   1. Application call to the stateful smart contract where we specify which method we want to get executed.
   2. Payment of `resell_fee` from the `asa_owner_address` to the `asa_creator` address. Here we handle the fees for the utility provider.
   3. Payment of `platform_fee` from the `asa_owner_address` to the `platform_address`. Here we handle the fees for the platform. 
   4. Asset transfer from the `clawback_address` to the `target_address`.
 
-![7](C:\Projects\Tokility_New\images\7.png)
+![application call transaction](https://github.com/Vilijan/Tokility/blob/master/images/7.png?raw=true)
