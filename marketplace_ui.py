@@ -1,6 +1,6 @@
 from src.services.sale_offer_service import InitialBuyOfferingsService, SecondHandOfferingsService
 from src.models.asset_sale_offer import SaleOffer
-from src.models.ticket_models import Ticket, ConcertTicket
+from src.models.ticket_models import Ticket, ConferenceTicket
 import time
 from typing import List
 import streamlit as st
@@ -178,7 +178,7 @@ def buy_ticket_second_hand(buyer_private_key: str,
 
 def load_offers():
     time.sleep(2)
-    initial_offers = InitialBuyOfferingsService.available_sell_offers(creator_address=CONCERT_COMPANY_ADDRESS)
+    initial_offers = InitialBuyOfferingsService.available_sell_offers(creator_address=CONFERENCE_COMPANY_ADDR)
     time.sleep(3)
     second_hand_offers = SecondHandOfferingsService.available_offers(app_id=APP_ID)
 
@@ -206,7 +206,7 @@ def list_sale_offers(available_sale_offers: List[SaleOffer]):
     for sale_offer in available_sale_offers:
         ID = sale_offer.ticket.asa_configuration.asa_id
         # TODO: This should be improved, currently is hard cast
-        sale_offer.ticket = ConcertTicket(**sale_offer.ticket.dict())
+        sale_offer.ticket = ConferenceTicket(**sale_offer.ticket.dict())
 
         show_sale_offer(sale_offer=sale_offer)
 
@@ -222,18 +222,18 @@ def list_sale_offers(available_sale_offers: List[SaleOffer]):
 
 PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
 BUYERS = [get_account_credentials(2), get_account_credentials(3)]
-CONCERT_COMPANY_PK, CONCERT_COMPANY_ADDRESS, _ = get_account_with_name("concert_company")
+CONFERENCE_COMPANY_PK, CONFERENCE_COMPANY_ADDR, _ = get_account_with_name("conference_company")
 client = get_client()
 
-APP_ID = 28471564
+APP_ID = 28715729
 
 tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
                                           app_creator_pk=PLATFORM_PK,
                                           client=client,
                                           app_id=APP_ID)
 
-concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
-                                         creator_pk=CONCERT_COMPANY_PK,
+concert_company_asa_service = ASAService(creator_addr=CONFERENCE_COMPANY_ADDR,
+                                         creator_pk=CONFERENCE_COMPANY_PK,
                                          tokility_dex_app_id=tokility_dex_service.app_id,
                                          client=client)
 

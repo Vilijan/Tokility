@@ -15,7 +15,7 @@ COLORS = [
     ("#EC6F66", "#F3A183"),
 ]
 
-APP_ID = 28471564
+APP_ID = 28715729
 
 
 def algos(micro_algos) -> float:
@@ -162,8 +162,11 @@ def ticket_holdings(account_address: str, creator_address: str) -> List[Ticket]:
     concert_assets_response = indexer.account_info(address=creator_address)
     concert_assets = set([asset['index'] for asset in concert_assets_response['account']['created-assets']])
 
-    owning_concert_assets = set([asset['asset-id'] for asset in account_info['account']['assets']
-                                 if asset['amount'] == 1 and asset['asset-id'] in concert_assets])
+    if 'assets' in account_info['account']:
+        owning_concert_assets = set([asset['asset-id'] for asset in account_info['account']['assets']
+                                     if asset['amount'] == 1 and asset['asset-id'] in concert_assets])
+    else:
+        owning_concert_assets = set()
 
     tickets: List[Ticket] = []
     for asset in concert_assets_response['account']['created-assets']:
@@ -180,7 +183,7 @@ def ticket_holdings(account_address: str, creator_address: str) -> List[Ticket]:
 
 def update_state():
     st.session_state[f"ticket_holdings_{SELLER_ADDRESS}"] = ticket_holdings(account_address=SELLER_ADDRESS,
-                                                                            creator_address=CONCERT_COMPANY_ADDRESS)
+                                                                            creator_address=CONFERENCE_COMPANY_ADDR)
     time.sleep(2)
     st.session_state[f"sell_offers_{SELLER_ADDRESS}"] = \
         SecondHandOfferingsService.available_offers(app_id=APP_ID,
@@ -245,15 +248,15 @@ client = get_client()
 
 PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
 BUYERS = [get_account_credentials(2), get_account_credentials(3)]
-CONCERT_COMPANY_PK, CONCERT_COMPANY_ADDRESS, _ = get_account_with_name("concert_company")
+CONFERENCE_COMPANY_PK, CONFERENCE_COMPANY_ADDR, _ = get_account_with_name("conference_company")
 
 tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
                                           app_creator_pk=PLATFORM_PK,
                                           client=client,
                                           app_id=APP_ID)
 
-concert_company_asa_service = ASAService(creator_addr=CONCERT_COMPANY_ADDRESS,
-                                         creator_pk=CONCERT_COMPANY_PK,
+concert_company_asa_service = ASAService(creator_addr=CONFERENCE_COMPANY_ADDR,
+                                         creator_pk=CONFERENCE_COMPANY_PK,
                                          tokility_dex_app_id=tokility_dex_service.app_id,
                                          client=client)
 
