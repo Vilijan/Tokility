@@ -6,7 +6,7 @@ from pyteal import *
 class TokilityDEXInterface(ABC):
 
     @abstractmethod
-    def initial_buy(self, asa_id):
+    def initial_buy(self):
         pass
 
     @abstractmethod

@@ -1,0 +1,18 @@
+{
+  "behavior_configuration": {
+    "asa_creator": "4QDLSFBRLD6VEAEV7LXETAN32PZB6GNPZESEOWGUC2BWGU6HNB6SCFT37Y",
+    "asa_price": 5000000,
+    "resell_fee": 100000,
+    "maximum_sell_price": 100000000,
+    "platform_fee": 10000,
+    "reselling_allowed": 1,
+    "resell_duration": 1668143794,
+    "gifting_allowed": 1
+  },
+
+  "utility_configuration": {
+    "property_1": "",
+    "property_2": "",
+    ...
+  }
+}
