@@ -68,27 +68,36 @@ def show_seller_config(seller_selected: str, asa_type: str) -> None:
     if submit_button:
         if validate_input(asa_price, reselling_allowed, max_sell_price, reselling_end_date, name):
             if asa_type == 'concert':
-                store_concert_input(asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date,
-                                    gifting_allowed, date_time, name, ticket_type, location)
+                store_concert_input(micro_algo(asa_price), reselling_allowed, micro_algo(max_sell_price),
+                                    micro_algo(creator_fee), reselling_end_date, gifting_allowed, date_time,
+                                    name, ticket_type, location)
             if asa_type == 'cinema':
-                store_cinema_input(asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date,
+                store_cinema_input(micro_algo(asa_price), reselling_allowed, micro_algo(max_sell_price),
+                                   micro_algo(creator_fee), reselling_end_date,
                                    gifting_allowed, date_time, name, ticket_type, seat, row)
 
             if asa_type == 'conference':
-                store_conference_input(asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date,
+                store_conference_input(micro_algo(asa_price), reselling_allowed, micro_algo(max_sell_price),
+                                       micro_algo(creator_fee), reselling_end_date,
                                        gifting_allowed, date_time, name, ticket_type, duration)
 
             if asa_type == 'appointment':
-                store_appointment_input(asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date,
+                store_appointment_input(micro_algo(asa_price), reselling_allowed, micro_algo(max_sell_price),
+                                        micro_algo(creator_fee), reselling_end_date,
                                         gifting_allowed, date_time, name, duration)
 
             if asa_type == 'restaurant':
-                store_restaurant_input(asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date,
+                store_restaurant_input(micro_algo(asa_price), reselling_allowed, micro_algo(max_sell_price),
+                                       micro_algo(creator_fee), reselling_end_date,
                                        gifting_allowed, date_time, name, ticket_type)
 
             st.success("Config was saved. New ticket created!🎉")
         else:
             st.warning("Config was not saved. Edit the fields and try again.")
+
+
+def micro_algo(algo):
+    return int(algo * 1000000)
 
 
 def show_tickets(asa_type: str) -> None:
@@ -114,13 +123,13 @@ def show_tickets(asa_type: str) -> None:
             show_ticket_info(ticket,  COLORS[0])
 
     # seller transactions overview
-    with st.expander("All transactions", expanded=True):
+    with st.expander("All transactions", expanded=False):
         # seller overview over all transactions
         st.header("🕵️ All transactions overview")
         # TODO: Add dummy data and display it in a nice way
 
 
-def store_concert_input(asa_price: int,
+def store_concert_input(asa_price: float,
                         reselling_allowed: bool,
                         max_sell_price: int,
                         creator_fee: int,
@@ -229,11 +238,11 @@ def store_conference_input(asa_price: int,
     try:
         unix_timestamp = int(time.mktime(datetime.strptime(str(reselling_end_date), "%Y-%m-%d").timetuple()))
 
-        initial_offering_config = ASAInitialOfferingConfiguration(asa_price=asa_price,
+        initial_offering_config = ASAInitialOfferingConfiguration(asa_price=int(asa_price),
                                                                   tokiliy_fee="5")
 
-        economy_configuration = ASAEconomyConfiguration(max_sell_price=max_sell_price,
-                                                        owner_fee=creator_fee,
+        economy_configuration = ASAEconomyConfiguration(max_sell_price=int(max_sell_price),
+                                                        owner_fee=int(creator_fee),
                                                         reselling_allowed=1 * reselling_allowed,
                                                         reselling_end_date=unix_timestamp,
                                                         gifting_allowed=1 * gifting_allowed)
@@ -354,10 +363,12 @@ def store_restaurant_input(asa_price: int,
 
 
 def show_concert_input() -> tuple:
-    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
-    date_time, name = show_general_input_fields('concert')
+    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
+        gifting_allowed = show_general_input_fields('concert')
 
     with st.expander("Concert specifics", expanded=False):
+        date_time = st.date_input("Enter the date of the event", key=f'concert_datetime')
+        name = st.text_input("Enter the event name", key=f'concert_name')
         ticket_types = ['Seating', 'Standing', 'VIP']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'concert_ticket_types')
         location = st.text_input("Enter the location of the concert", key=f'concert_location')
@@ -367,9 +378,11 @@ def show_concert_input() -> tuple:
 
 
 def show_cinema_input() -> tuple:
-    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
-    date_time, name = show_general_input_fields('cinema')
+    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
+        gifting_allowed = show_general_input_fields('cinema')
     with st.expander("Cinema specifics", expanded=False):
+        date_time = st.date_input("Enter the date of the event", key=f'cinema_datetime')
+        name = st.text_input("Enter the event name", key=f'cinema_name')
         ticket_types = ['Regular', 'VIP']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'cinema_ticket_types')
         seat = st.slider("Select a seat", min_value=1, max_value=100, step=1, key=f'cinema_seat')
@@ -380,9 +393,11 @@ def show_cinema_input() -> tuple:
 
 
 def show_conference_input() -> tuple:
-    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
-    date_time, name = show_general_input_fields('conference')
+    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
+        gifting_allowed = show_general_input_fields('conference')
     with st.expander("Conference specifics", expanded=False):
+        date_time = st.date_input("Enter the date of the event", key=f'conference_datetime')
+        name = st.text_input("Enter the event name", key=f'conference_name')
         ticket_types = ['Regular', 'VIP']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'conference_ticket_types')
 
@@ -393,9 +408,11 @@ def show_conference_input() -> tuple:
 
 
 def show_appointment_input() -> tuple:
-    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
-    date_time, name = show_general_input_fields('appointment')
+    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
+        gifting_allowed = show_general_input_fields('appointment')
     with st.expander("Appointment specifics", expanded=False):
+        date_time = st.date_input("Enter the date of the event", key=f'appointment_datetime')
+        name = st.text_input("Enter the event name", key=f'appointment_name')
         duration = st.number_input("Select the duration in hours", key=f'appointment_duration')
 
         return asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
@@ -403,9 +420,11 @@ def show_appointment_input() -> tuple:
 
 
 def show_restaurant_input() -> tuple:
-    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed, \
-    date_time, name = show_general_input_fields('restaurant')
+    asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
+        gifting_allowed = show_general_input_fields('restaurant')
     with st.expander("Restaurant specifics", expanded=False):
+        date_time = st.date_input("Enter the date of the event", key=f'restaurant_datetime')
+        name = st.text_input("Enter the event name", key=f'restaurant_name')
         ticket_types = ['Food', 'Drinks only']
         ticket_type = st.selectbox("Select the ticket type", ticket_types, key=f'restaurant_ticket_types')
 
@@ -425,13 +444,10 @@ def show_general_input_fields(key: str) -> tuple:
         reselling_allowed = st.checkbox("Tick this box if you allow reselling", key=f'{key}_reselling_allowed')
         max_sell_price = st.number_input("Insert maximum reselling price", key=f'{key}_max_resell_price')
         creator_fee = st.number_input("Insert your fee of the resold ticket", key=f'{key}_creator_fee')
-        reselling_end_date = st.date_input('End date', date.today(), key=f'{key}_reselling_end_date')
         gifting_allowed = st.checkbox("Tick this box if you allow gifting", key=f'{key}_allow_gifting')
-        datetime = st.date_input("Enter the date of the event", key=f'{key}_datetime')
-        name = st.text_input("Enter the event name", key=f'{key}_name')
+        reselling_end_date = st.date_input('End date', date.today(), key=f'{key}_reselling_end_date')
 
-        return asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, \
-               gifting_allowed, datetime, name
+        return asa_price, reselling_allowed, max_sell_price, creator_fee, reselling_end_date, gifting_allowed
 
 
 def validate_input(asa_price: int,
