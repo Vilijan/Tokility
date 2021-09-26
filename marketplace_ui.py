@@ -6,8 +6,16 @@ from typing import List
 import streamlit as st
 from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
-from src.blockchain_utils.credentials import get_account_credentials, get_account_with_name, get_client
 from PIL import Image
+import json
+from src.blockchain_utils.credentials import get_client
+
+
+def load_json(file_name):
+    with open(file_name) as f:
+        data = json.load(f)
+        return data
+
 
 COLORS = [
     ("#9E392B", "#B98888"),
@@ -20,7 +28,6 @@ def algos(micro_algos) -> float:
 
 def show_sale_offer(sale_offer: SaleOffer, color: (str, str)):
     ticket = sale_offer.ticket
-    offer_type = "Buying from the creator" if sale_offer.sale_type == "initial_buy" else "Buying from reseller"
     html_format = f"""
         <div class="card">
             <header>
@@ -224,12 +231,24 @@ def list_sale_offers(available_sale_offers: List[SaleOffer]):
                         args=(sale_offer,))
 
 
-PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
-BUYERS = [get_account_credentials(2), get_account_credentials(3)]
-CONFERENCE_COMPANY_PK, CONFERENCE_COMPANY_ADDR, _ = get_account_with_name("conference_company")
-client = get_client()
+config = load_json('config.json')
+APP_ID = config['app_id']
 
-APP_ID = 28715729
+PLATFORM_PK = config['app_creator_pk']
+PLATFORM_ADDRESS = config['app_creator_address']
+
+BUYER_1_PK = config['buyer_1_pk']
+BUYER_1_ADDRESS = config['buyer_1_address']
+
+BUYER_2_PK = config['buyer_2_pk']
+BUYER_2_ADDRESS = config['buyer_2_address']
+
+BUYERS = [(BUYER_1_PK, BUYER_1_ADDRESS), (BUYER_2_PK, BUYER_2_ADDRESS)]
+
+CONFERENCE_COMPANY_PK = config['conference_company_pk']
+CONFERENCE_COMPANY_ADDR = config['conference_company_address']
+
+client = get_client()
 
 tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
                                           app_creator_pk=PLATFORM_PK,

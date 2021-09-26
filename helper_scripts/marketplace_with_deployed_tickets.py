@@ -16,7 +16,7 @@ buyer_pk, buyer_add, _ = get_account_credentials(2)
 buyer_2_pk, buyer_2_add, _ = get_account_credentials(3)
 concert_company_pk, concert_company_addr, _ = get_account_with_name("concert_company")
 client = get_client()
-APP_ID = 28715729
+APP_ID = None
 
 
 def algo(micro_algo) -> int:

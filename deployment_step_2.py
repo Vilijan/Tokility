@@ -1,14 +1,10 @@
 import json
-from typing import List
 from src.models.asset_configurations import ASAConfiguration, ASAInitialOfferingConfiguration, ASAEconomyConfiguration
 from src.models.ticket_models import ConferenceTicket, Ticket
-from src.blockchain_utils.credentials import get_account_with_name
 import random
 from src.services.asa_service import ASAService
-from src.blockchain_utils.credentials import get_client, get_account_credentials, get_indexer
+from src.blockchain_utils.credentials import get_client
 import requests
-
-CONFERENCE_COMPANY_PK, CONFERENCE_COMPANY_ADDR, _ = get_account_with_name("conference_company")
 
 
 def micro_algo(algo):
@@ -54,12 +50,14 @@ def load_json(file_name):
         return data
 
 
+config = load_json('config.json')
+
 ticket_type = ["VIP", "Regular", "VIP", "Regular", "VIP", "Regular", "VIP", "Regular"]
 
 ticket_duration = [1, 2, 3, 1, 2, 3, 1, 2]
 
 for i in range(len(ticket_type)):
-    asa_configuration = create_random_asa_configuration(creator_address=CONFERENCE_COMPANY_ADDR,
+    asa_configuration = create_random_asa_configuration(creator_address=config['conference_company_address'],
                                                         asset_name="Decipher")
 
     conference_ticket = ConferenceTicket(asa_configuration=asa_configuration,
@@ -73,26 +71,31 @@ for i in range(len(ticket_type)):
 
     save_json(f'data/conference_ipfs/{i}.json', conference_ticket.dict())
 
-client = get_client()
+deploy_to_ipfs = input('Manually deploy the data/conference_ipfs folder to ipfs. Press any button to continue. ')
+print('-' * 50)
+base_ipfs_url = input('Enter the base ipfs url of the folder')
+print('-' * 50)
 
-APP_ID = 28788058
+client = get_client()
 
 # TODO: Now we are manually deploying the folder to IPFS. We need to have an API that does that.
 
-BASE_FOLDER_IPFS_URL = "https://gateway.pinata.cloud/ipfs/QmZUz69QcdxhYoMuiUnYEhxGQPMT9Qd4SW7z7BzzdD1TMK/"
-
-ipfs_deployed_configurations = [f"{BASE_FOLDER_IPFS_URL}{i}.json" for i in range(len(ticket_type))]
+ipfs_deployed_configurations = [f"{base_ipfs_url}{i}.json" for i in range(len(ticket_type))]
 
 print(f'OPEN THIS IN BROWSER: {ipfs_deployed_configurations[0]}')
+check_input = input(
+    'Open this link in browser to verify whether it is a correct conference configuration. Press any button to continue. ')
+print('-' * 50)
 
-asa_service = ASAService(creator_addr=CONFERENCE_COMPANY_ADDR,
-                         creator_pk=CONFERENCE_COMPANY_PK,
-                         tokility_dex_app_id=APP_ID,
+asa_service = ASAService(creator_addr=config['conference_company_address'],
+                         creator_pk=config['conference_company_pk'],
+                         tokility_dex_app_id=config['app_id'],
                          client=client)
 
 for i, ipfs_data_url in enumerate(ipfs_deployed_configurations):
     r = requests.get(ipfs_data_url)
     concert_ticket = ConferenceTicket(**r.json())
     concert_ticket.asa_configuration.configuration_ipfs_url = ipfs_data_url
+    print('-' * 50)
     asa_id, tx_id = asa_service.create_asa(asa_configuration=concert_ticket.asa_configuration)
-    print(asa_id, tx_id)
+    print(f'Utility token deployed with asa_id: {asa_id}')
