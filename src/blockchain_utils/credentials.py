@@ -95,7 +95,7 @@ def add_account_to_config():
 
     with open(config_location, 'w') as file:
         yaml.safe_dump(cur_yaml, file)
-
-
+#
+#
 # for i in range(9):
 #     add_account_to_config()

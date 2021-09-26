@@ -1,20 +1,25 @@
-from src.services.sale_offer_service import InitialBuyOfferingsService, SecondHandOfferingsService
+from src.services.sale_offer_service import SecondHandOfferingsService
 from src.models.asset_sale_offer import SaleOffer
-from src.models.ticket_models import Ticket, ConcertTicket
+from src.models.ticket_models import Ticket, ConferenceTicket
 import time
 from typing import List
 import streamlit as st
 from src.services.asa_service import ASAService
 from src.services.tokility_dex_service import TokilityDEXService
-from src.blockchain_utils.credentials import get_account_credentials, get_account_with_name, get_client, get_indexer
+from src.blockchain_utils.credentials import get_client, get_indexer
 import requests
 from PIL import Image
+import json
 
 COLORS = [
     ("#9E392B", "#B98888"),
 ]
 
-APP_ID = 28715729
+
+def load_json(file_name):
+    with open(file_name) as f:
+        data = json.load(f)
+        return data
 
 
 def algos(micro_algos) -> float:
@@ -210,7 +215,7 @@ def list_tickets():
 
     for curr_ticket in tickets:
         ID = curr_ticket.asa_configuration.asa_id
-        concert_ticket = ConcertTicket(**curr_ticket.dict())
+        concert_ticket = ConferenceTicket(**curr_ticket.dict())
         show_ticket_info(ticket=concert_ticket, color=COLORS[0])
 
         # Show the current selling offer.
@@ -243,11 +248,24 @@ def list_tickets():
         st.write("_______")
 
 
-client = get_client()
+config = load_json('config.json')
+APP_ID = config['app_id']
 
-PLATFORM_PK, PLATFORM_ADDRESS, _ = get_account_credentials(1)
-BUYERS = [get_account_credentials(2), get_account_credentials(3)]
-CONFERENCE_COMPANY_PK, CONFERENCE_COMPANY_ADDR, _ = get_account_with_name("conference_company")
+PLATFORM_PK = config['app_creator_pk']
+PLATFORM_ADDRESS = config['app_creator_address']
+
+BUYER_1_PK = config['buyer_1_pk']
+BUYER_1_ADDRESS = config['buyer_1_address']
+
+BUYER_2_PK = config['buyer_2_pk']
+BUYER_2_ADDRESS = config['buyer_2_address']
+
+BUYERS = [(BUYER_1_PK, BUYER_1_ADDRESS), (BUYER_2_PK, BUYER_2_ADDRESS)]
+
+CONFERENCE_COMPANY_PK = config['conference_company_pk']
+CONFERENCE_COMPANY_ADDR = config['conference_company_address']
+
+client = get_client()
 
 tokility_dex_service = TokilityDEXService(app_creator_addr=PLATFORM_ADDRESS,
                                           app_creator_pk=PLATFORM_PK,
