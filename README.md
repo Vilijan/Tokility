@@ -54,7 +54,7 @@ The overall configuration for the token can be represented as a JSON file. Then 
 
 We can have huge number of tokens issued on the platform, where each token has its own behavior configuration. The stateful smart contract should be able to access those configurations in order to verify and approve transactions. We provide a solution to the following problem:
 
->  *"How a stateful smart contract will be able to have access to N configurations on the blockchain, where N can get up to millions?"* 
+>  *"How a stateful smart contract will be able access N configurations on the blockchain, where N can get up to millions?"* 
 
 In order to achieve this, we are using a trick with the `Metadata Hash` property for every created Algorand Standard Asset. When issuing an utility token as an Algorand Standard Asset we fill the following properties:
 
