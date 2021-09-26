@@ -438,7 +438,7 @@ def generate_id():
 
 # we need this so that streamlit form refreshes when changing a seller
 def show_general_input_fields(key: str) -> tuple:
-    with st.expander("Base Configuration", expanded=False):
+    with st.expander("Behavior Configuration", expanded=False):
         st.header("🎟 Set the general rules")
         asa_price = st.number_input("Insert price", key=f'{key}_price')
         reselling_allowed = st.checkbox("Tick this box if you allow reselling", key=f'{key}_reselling_allowed')
