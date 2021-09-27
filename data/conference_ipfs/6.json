@@ -1,0 +1,28 @@
+{
+  "asa_configuration": {
+    "asa_creator_address": "KCNLWKVYPVSPI4WKOEU4BKHCS3KTMLNKLKDSPMRNI6OW6VTBQVTOERYPPI",
+    "asa_id": null,
+    "asa_metadata": null,
+    "asset_name": "Decipher",
+    "configuration_ipfs_url": null,
+    "economy_configuration": {
+      "gifting_allowed": 1,
+      "max_sell_price": 27290441,
+      "owner_fee": 1278421,
+      "reselling_allowed": 1,
+      "reselling_end_date": 1637833854
+    },
+    "initial_offering_configuration": {
+      "asa_price": 1452013,
+      "tokiliy_fee": 327358
+    },
+    "unit_name": "TOK"
+  },
+  "business_type": "conference",
+  "datetime": "29.11.2021",
+  "duration": "1",
+  "ipfs_image": "https://gateway.pinata.cloud/ipfs/Qmf1JuhhG7qYBtQkPd2RtECWnaZsJvS2aSKWEPPHfypTwf/conference_vip.png",
+  "issuer": "Algorand Foundation",
+  "name": "Decipher - The Future is Built on Algorand",
+  "type": "VIP"
+}

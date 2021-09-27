@@ -1,3 +1,21 @@
+# Environment setup
+
+- `pip install -r requirements.txt`
+- Configure a `config.yml` file with the properties shown below:
+
+```yaml
+client_credentials:
+  address: ADDRESS_VALUE
+  token: TOKEN_VALUE
+```
+
+## Deploying the application
+
+1. `python run deployment_step_1.py` - with this script we are creating an admin address, conference ticket issue address and two buyer addresses. After funding the accounts, we create deploy the Tokility DEX Smart Contract and save all the information in a local `config.json` file.
+2. `python run deployment_step_2.py` - With this scrip we are randomly creating 8 utility token configurations and store them as `json` files in the `data/conference_ipfs/` folder.  You need to manually deploy the `data/conference_ipfs/` folder to an IPFS server. Afterwards, you need to add the IPFS URL of the folder in the command promt. Once it is all configured, we are able to mint the tokens as NFTs on the Algorand blockchain.
+3. `streamlit run marketplace_ui.py` - with this script we are starting up the UI for the marketplace. Here you will see all the available tickets.
+4. `streamlit run sell_ui.py` - with this script we are starting up the UI for the sellers. In order to see something here, you will need first to purchase some tickets on the marketplace UI.
+
 # Tokility
 
 Toklity represents a platform that provides utility tokens. Those tokens are issued on the Algorand blockchain. This makes them digitally identifiable, which enables us to know who is, and who was, the owner of the token at any point of time. Besides the digital identification of the token, each token has associated configuration with it. The configuration defines the behavior of the token. By using smart contracts we are making sure that on every interaction with the token, we are following the rules defined in the token's configuration. With those properties, we are creating transparent playfield for all of the users on our platform. 
